@@ -20,22 +20,39 @@
     </header>
 
     <main class="container glass-panel">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="search">Search Courses</button>
+            <button class="tab-btn" data-tab="schedule">View Schedule</button>
+        </div>
+
         <div class="main-content">
-            <section class="available-section">
-                <h2>Available Courses</h2>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search by course, section or faculty..." autocomplete="off">
+            <section id="search-tab" class="tab-content active">
+                <div class="tab-grid">
+                    <section class="available-section">
+                        <h2>Available Courses</h2>
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search by course, section or faculty..." autocomplete="off">
+                        </div>
+                        <div id="courseList" class="scroll-container"></div>
+                    </section>
+
+                    <aside class="selected-section glass-panel">
+                        <h3>Selected Courses</h3>
+                        <ul id="selectedCourses" class="scroll-container"></ul>
+                        <div class="selection-summary">
+                            <span id="selectCount">0 selected</span>
+                        </div>
+                    </aside>
                 </div>
-                <div id="courseList" class="scroll-container"></div>
             </section>
 
-            <aside class="selected-section glass-panel">
-                <h3>Selected Courses</h3>
-                <ul id="selectedCourses" class="scroll-container"></ul>
-                <div class="selection-summary">
-                    <span id="selectCount">0 selected</span>
+            <section id="schedule-tab" class="tab-content">
+                <div class="schedule-container">
+                    <h2>Your Schedule</h2>
+                    <div class="schedule-grid" id="scheduleGrid"></div>
+                    <div id="noScheduleMsg" class="no-schedule">Select courses to view schedule</div>
                 </div>
-            </aside>
+            </section>
         </div>
     </main>
 

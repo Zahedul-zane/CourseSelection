@@ -3254,5 +3254,157 @@ if (searchInput) {
 
 renderCourses();
 
+// Schedule Generation Functions
+function getDayIndex(dayLetter) {
+  const dayMap = { 'M': 0, 'T': 1, 'W': 2, 'R': 3, 'F': 4, 'S': 5 };
+  return dayMap[dayLetter] !== undefined ? dayMap[dayLetter] : -1;
+}
 
+function extractDays(courseStr) {
+  const match = courseStr.match(/\[([A-Z]+)\s+/);
+  if (!match) return [];
+  const dayString = match[1];
+  const days = [];
+  for (let i = 0; i < dayString.length; i++) {
+    const idx = getDayIndex(dayString[i]);
+    if (idx !== -1) days.push(idx);
+  }
+  return days;
+}
 
+function getTimeSlotIndex(timeStr) {
+  const [time, period] = timeStr.split(" ");
+  let [hours, mins] = time.split(":").map(Number);
+  if (period === "PM" && hours !== 12) hours += 12;
+  if (period === "AM" && hours === 12) hours = 0;
+  const totalMins = hours * 60 + mins;
+  // Round to nearest 30 mins
+  return Math.round(totalMins / 30);
+}
+
+function getTimeSlotLabel(slotIndex) {
+  const totalMins = slotIndex * 30;
+  let hours = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  const period = hours >= 12 ? 'PM' : 'AM';
+  if (hours === 0) hours = 12;
+  if (hours > 12) hours -= 12;
+  return `${hours}:${mins.toString().padStart(2, '0')} ${period}`;
+}
+
+function renderSchedule() {
+  const grid = document.getElementById("scheduleGrid");
+  const noMsg = document.getElementById("noScheduleMsg");
+  
+  if (selected.length === 0) {
+    grid.style.display = "none";
+    noMsg.style.display = "block";
+    return;
+  }
+  
+  noMsg.style.display = "none";
+  grid.innerHTML = "";
+  grid.style.display = "grid";
+  
+  // Get all time slots
+  const slots = new Map();
+  const dayMap = new Map();
+  
+  for (let i = 0; i < 6; i++) dayMap.set(i, []);
+  
+  selected.forEach(course => {
+    const days = extractDays(course);
+    const timeMatch = course.match(/(\d{1,2}:\d{2}\s+[AP]M)\s+-\s+(\d{1,2}:\d{2}\s+[AP]M)/);
+    if (!timeMatch) return;
+    
+    const startSlot = getTimeSlotIndex(timeMatch[1]);
+    const endSlot = getTimeSlotIndex(timeMatch[2]);
+    
+    days.forEach(day => {
+      if (!dayMap.get(day)) dayMap.set(day, []);
+      dayMap.get(day).push({ course, startSlot, endSlot });
+      slots.set(startSlot, true);
+      slots.set(endSlot, true);
+    });
+  });
+  
+  const sortedSlots = Array.from(slots.keys()).sort((a, b) => a - b);
+  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  
+  // Header row
+  const emptyHeader = document.createElement("div");
+  emptyHeader.classList.add("schedule-time-header");
+  emptyHeader.textContent = "Time";
+  grid.appendChild(emptyHeader);
+  
+  for (let day = 0; day < 6; day++) {
+    const header = document.createElement("div");
+    header.classList.add("schedule-day-header");
+    header.textContent = dayNames[day];
+    grid.appendChild(header);
+  }
+  
+  // Time slots and courses
+  for (let i = 0; i < sortedSlots.length - 1; i++) {
+    const startSlot = sortedSlots[i];
+    
+    // Time label
+    const timeCell = document.createElement("div");
+    timeCell.classList.add("schedule-time-slot");
+    timeCell.textContent = getTimeSlotLabel(startSlot);
+    grid.appendChild(timeCell);
+    
+    // Day cells
+    for (let day = 0; day < 6; day++) {
+      const cell = document.createElement("div");
+      cell.classList.add("schedule-cell");
+      
+      const coursesInCell = dayMap.get(day).filter(c => 
+        c.startSlot <= startSlot && c.endSlot > startSlot
+      );
+      
+      coursesInCell.forEach(courseData => {
+        const courseEl = document.createElement("div");
+        courseEl.classList.add("schedule-course");
+        const courseName = courseData.course.split(" - ")[0];
+        courseEl.textContent = courseName;
+        courseEl.title = courseData.course;
+        cell.appendChild(courseEl);
+      });
+      
+      grid.appendChild(cell);
+    }
+  }
+}
+
+// Tab switching
+const tabBtns = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tabName = btn.getAttribute("data-tab");
+    
+    // Remove active class from all
+    tabBtns.forEach(b => b.classList.remove("active"));
+    tabContents.forEach(c => c.classList.remove("active"));
+    
+    // Add active class to clicked
+    btn.classList.add("active");
+    document.getElementById(tabName + "-tab").classList.add("active");
+    
+    // Render schedule if switching to schedule tab
+    if (tabName === "schedule") {
+      renderSchedule();
+    }
+  });
+});
+
+// Update schedule when courses are selected/removed
+const originalRenderSelected = renderSelected;
+window.renderSelected = function() {
+  originalRenderSelected.call(this);
+  renderSchedule();
+};
+
+renderCourses();
