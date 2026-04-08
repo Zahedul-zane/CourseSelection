@@ -3040,6 +3040,11 @@ function getCourseCode(courseStr) {
   return courseStr.split(" (")[0];
 }
 
+function getSection(courseStr) {
+  const match = courseStr.match(/\(Sec\s+(\d+)\)/);
+  return match ? match[1] : null;
+}
+
 function getSectionKey(courseStr) {
   return courseStr.split(" [")[0];
 }
@@ -3282,10 +3287,16 @@ function renderCourses(searchTerm = "") {
           selected = selected.filter(c => !section.parts.includes(c));
         } else {
           const newCode = getCourseCode(section.key);
-          const sameCourse = selected.find(c => getCourseCode(c) === newCode);
-          if (sameCourse) {
-            alert(`You have already selected a section for ${newCode}!\nRemove it first if you want to change.`);
-            return;
+          const newSection = getSection(section.key);
+          const sameCourseSection = selected.find(c => getCourseCode(c) === newCode && getSection(c) === newSection);
+          
+          if (!sameCourseSection) {
+            // Check if different section of same course exists
+            const differentSection = selected.find(c => getCourseCode(c) === newCode);
+            if (differentSection) {
+              alert(`You have already selected a section for ${newCode}!\nRemove it first if you want to change.`);
+              return;
+            }
           }
           
           let clashCourse = null;
