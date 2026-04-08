@@ -3256,7 +3256,7 @@ renderCourses();
 
 // Schedule Generation Functions
 function getDayIndex(dayLetter) {
-  const dayMap = { 'M': 0, 'T': 1, 'W': 2, 'R': 3, 'F': 4, 'S': 5 };
+  const dayMap = { 'S': 0, 'M': 1, 'T': 2, 'W': 3, 'R': 4, 'F': 5, 'A': 6 };
   return dayMap[dayLetter] !== undefined ? dayMap[dayLetter] : -1;
 }
 
@@ -3278,18 +3278,7 @@ function getTimeSlotIndex(timeStr) {
   if (period === "PM" && hours !== 12) hours += 12;
   if (period === "AM" && hours === 12) hours = 0;
   const totalMins = hours * 60 + mins;
-  // Round to nearest 30 mins
   return Math.round(totalMins / 30);
-}
-
-function getTimeSlotLabel(slotIndex) {
-  const totalMins = slotIndex * 30;
-  let hours = Math.floor(totalMins / 60);
-  const mins = totalMins % 60;
-  const period = hours >= 12 ? 'PM' : 'AM';
-  if (hours === 0) hours = 12;
-  if (hours > 12) hours -= 12;
-  return `${hours}:${mins.toString().padStart(2, '0')} ${period}`;
 }
 
 function renderSchedule() {
@@ -3304,76 +3293,108 @@ function renderSchedule() {
   
   noMsg.style.display = "none";
   grid.innerHTML = "";
+  
   grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(280px, 1fr))";
+  grid.style.gap = "20px";
+  grid.style.background = "transparent";
+  grid.style.border = "none";
+  grid.style.boxShadow = "none";
+  grid.style.padding = "0";
+  grid.style.minHeight = "auto";
   
-  // Get all time slots
-  const slots = new Map();
+  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const dayMap = new Map();
-  
-  for (let i = 0; i < 6; i++) dayMap.set(i, []);
+  for (let i = 0; i < 7; i++) dayMap.set(i, []);
   
   selected.forEach(course => {
     const days = extractDays(course);
-    const timeMatch = course.match(/(\d{1,2}:\d{2}\s+[AP]M)\s+-\s+(\d{1,2}:\d{2}\s+[AP]M)/);
+    const timeMatch = course.match(/\[([A-Z]+)\s+(.*?)\]/);
     if (!timeMatch) return;
+    const timeString = timeMatch[2]; // e.g., "11:50 AM - 01:20 PM"
     
-    const startSlot = getTimeSlotIndex(timeMatch[1]);
-    const endSlot = getTimeSlotIndex(timeMatch[2]);
-    
+    // Sort by start slot for ordering within the day
+    const timeOnlyMatch = course.match(/(\d{1,2}:\d{2}\s+[AP]M)/);
+    let startSlot = 0;
+    if (timeOnlyMatch) startSlot = getTimeSlotIndex(timeOnlyMatch[1]);
+
+    const courseName = course.split(" - ")[0]; // "ACT101 (Sec 1)"
+
     days.forEach(day => {
-      if (!dayMap.get(day)) dayMap.set(day, []);
-      dayMap.get(day).push({ course, startSlot, endSlot });
-      slots.set(startSlot, true);
-      slots.set(endSlot, true);
+      dayMap.get(day).push({ courseName, timeString, startSlot, fullCourse: course });
     });
   });
-  
-  const sortedSlots = Array.from(slots.keys()).sort((a, b) => a - b);
-  const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  
-  // Header row
-  const emptyHeader = document.createElement("div");
-  emptyHeader.classList.add("schedule-time-header");
-  emptyHeader.textContent = "Time";
-  grid.appendChild(emptyHeader);
-  
-  for (let day = 0; day < 6; day++) {
-    const header = document.createElement("div");
-    header.classList.add("schedule-day-header");
-    header.textContent = dayNames[day];
-    grid.appendChild(header);
-  }
-  
-  // Time slots and courses
-  for (let i = 0; i < sortedSlots.length - 1; i++) {
-    const startSlot = sortedSlots[i];
+
+  const colors = [
+    "var(--neon-cyan)",
+    "var(--neon-purple)",
+    "var(--neon-green)",
+    "#f72585",
+    "#f8961e",
+    "#43aa8b",
+    "#e0e7ff"
+  ];
+  let colorIdx = 0;
+  const courseColors = new Map();
+
+  for (let day = 0; day < 7; day++) {
+    const classesToday = dayMap.get(day);
+    if (classesToday.length === 0) continue;
     
-    // Time label
-    const timeCell = document.createElement("div");
-    timeCell.classList.add("schedule-time-slot");
-    timeCell.textContent = getTimeSlotLabel(startSlot);
-    grid.appendChild(timeCell);
+    // Sort classes by time
+    classesToday.sort((a, b) => a.startSlot - b.startSlot);
+
+    const dayCard = document.createElement("div");
+    dayCard.className = "glass-panel";
+    dayCard.style.padding = "20px";
+    dayCard.style.borderRadius = "16px";
+    dayCard.style.background = "rgba(255, 255, 255, 0.03)";
     
-    // Day cells
-    for (let day = 0; day < 6; day++) {
-      const cell = document.createElement("div");
-      cell.classList.add("schedule-cell");
+    const dayHeader = document.createElement("h3");
+    dayHeader.textContent = dayNames[day];
+    dayHeader.style.borderBottom = "1px solid rgba(6, 214, 208, 0.2)";
+    dayHeader.style.paddingBottom = "10px";
+    dayHeader.style.marginBottom = "15px";
+    dayHeader.style.color = "var(--text-main)";
+    dayCard.appendChild(dayHeader);
+
+    classesToday.forEach(cls => {
+      if (!courseColors.has(cls.courseName)) {
+        courseColors.set(cls.courseName, colors[colorIdx % colors.length]);
+        colorIdx++;
+      }
       
-      const coursesInCell = dayMap.get(day).filter(c => 
-        c.startSlot <= startSlot && c.endSlot > startSlot
-      );
+      const classItem = document.createElement("div");
+      classItem.style.marginBottom = "12px";
+      classItem.style.padding = "12px";
+      classItem.style.borderRadius = "8px";
+      classItem.style.background = "rgba(0,0,0,0.3)";
+      classItem.style.borderLeft = `4px solid ${courseColors.get(cls.courseName)}`;
+      classItem.style.display = "flex";
+      classItem.style.flexDirection = "column";
+      classItem.style.gap = "6px";
+      classItem.style.transition = "transform 0.2s ease";
       
-      coursesInCell.forEach(courseData => {
-        const courseEl = document.createElement("div");
-        courseEl.classList.add("schedule-course");
-        const courseName = courseData.course.split(" - ")[0];
-        courseEl.textContent = courseName;
-        courseEl.title = courseData.course;
-        cell.appendChild(courseEl);
-      });
-      
-      grid.appendChild(cell);
-    }
+      classItem.onmouseover = () => classItem.style.transform = "translateX(5px)";
+      classItem.onmouseout = () => classItem.style.transform = "translateX(0)";
+
+      const nameEl = document.createElement("span");
+      nameEl.textContent = cls.courseName;
+      nameEl.style.fontWeight = "600";
+      nameEl.style.color = courseColors.get(cls.courseName);
+      nameEl.style.fontSize = "1.05rem";
+
+      const timeEl = document.createElement("span");
+      timeEl.textContent = "⏱ " + cls.timeString;
+      timeEl.style.color = "var(--text-muted)";
+      timeEl.style.fontSize = "0.9rem";
+
+      classItem.appendChild(nameEl);
+      classItem.appendChild(timeEl);
+      dayCard.appendChild(classItem);
+    });
+
+    grid.appendChild(dayCard);
   }
 }
 
