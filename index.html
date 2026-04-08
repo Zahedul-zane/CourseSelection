@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Selection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glow-bg">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <header>
+        <h1 class="neon-text">Course Selection System</h1>
+    </header>
+
+    <main class="container glass-panel">
+        <div class="main-content">
+            <section class="available-section">
+                <h2>Available Courses</h2>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search by course, section or faculty..." autocomplete="off">
+                </div>
+                <div id="courseList" class="scroll-container"></div>
+            </section>
+
+            <aside class="selected-section glass-panel">
+                <h3>Selected Courses</h3>
+                <ul id="selectedCourses" class="scroll-container"></ul>
+                <div class="selection-summary">
+                    <span id="selectCount">0 selected</span>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
