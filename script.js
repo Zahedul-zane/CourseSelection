@@ -3085,29 +3085,175 @@ function hasClash(timing1, timing2) {
   return (timing1.start < timing2.end && timing1.end > timing2.start);
 }
 
+function parseCourseParts(courseString) {
+  // Parse a course string like "ACT101 (Sec 1) - DACY [MW 11:50 AM - 01:20 PM]"
+  // and extract: courseCode, sectionNum, faculty, time
+  const courseCodeMatch = courseString.match(/^([A-Z]+\d+)/);
+  const sectionMatch = courseString.match(/\(Sec (\d+)\)/);
+  const facultyMatch = courseString.match(/- ([A-Z]+)\s*\[/);
+  const timeMatch = courseString.match(/\[(.+?)\]/);
+  
+  return {
+    courseCode: courseCodeMatch ? courseCodeMatch[1].toLowerCase() : "",
+    sectionNum: sectionMatch ? sectionMatch[1] : "",
+    faculty: facultyMatch ? facultyMatch[1].toLowerCase() : "",
+    time: timeMatch ? timeMatch[1].toLowerCase() : ""
+  };
+}
+
+function parseAdvancedSearch(searchTerm) {
+  // Parse advanced search syntax like "ACT101 2" or "ACT101 sec 2"
+  // Returns { courseCode, sectionNum, faculty }
+  const result = { courseCode: null, sectionNum: null, faculty: null };
+  
+  const searchLower = searchTerm.toLowerCase().trim();
+  if (!searchLower) return result;
+  
+  const words = searchLower.split(/\s+/);
+  
+  // Check if first word matches course code pattern
+  if (!/^[a-z]+\d+$/.test(words[0])) {
+    return result;
+  }
+  
+  result.courseCode = words[0];
+  
+  // Look for section number
+  for (let i = 1; i < words.length; i++) {
+    if (words[i] === 'sec' && i + 1 < words.length) {
+      // "sec X" pattern
+      const num = words[i + 1];
+      if (/^\d+$/.test(num)) {
+        result.sectionNum = num;
+      }
+    } else if (/^\d+$/.test(words[i])) {
+      // Direct number after course code
+      result.sectionNum = words[i];
+    }
+  }
+  
+  return result;
+}
+
+function matchesSearchCriteria(courseString, searchTerm) {
+  // Check if a course matches the search by checking each parsed field
+  // Return true if searchTerm is empty or matches any field
+  if (searchTerm === "") return true;
+  
+  const searchLower = searchTerm.toLowerCase();
+  const parts = parseCourseParts(courseString);
+  
+  // Try advanced search first
+  const advancedSearch = parseAdvancedSearch(searchTerm);
+  if (advancedSearch.courseCode !== null) {
+    // Advanced search found a course code
+    if (parts.courseCode !== advancedSearch.courseCode) {
+      return false; // Course code doesn't match
+    }
+    
+    // Course code matches, check section number if specified
+    if (advancedSearch.sectionNum !== null) {
+      if (parts.sectionNum !== advancedSearch.sectionNum) {
+        return false; // Section number doesn't match
+      }
+    }
+    
+    // Course code matches (and section if required)
+    return true;
+  }
+  
+  // Fall back to simple search checking any field
+  return (
+    parts.courseCode.includes(searchLower) ||
+    parts.sectionNum.includes(searchLower) ||
+    parts.faculty.includes(searchLower) ||
+    parts.time.includes(searchLower)
+  );
+}
+
 function renderCourses(searchTerm = "") {
   courseList.innerHTML = "";
-  const searchLower = searchTerm.toLowerCase();
   
-  let count = 0;
+  // First pass: group sections by course code and check if they match search
+  const courseCodeGroups = new Map(); // courseCode -> array of {key, parts}
+  
   for (let i = 0; i < groupedCourseKeys.length; i++) {
     const key = groupedCourseKeys[i];
     const parts = groupedCoursesMap.get(key);
     
-    // Create a searchable string: section key + all its times
-    const searchableString = parts.join(" ").toLowerCase();
+    // Check if any part of this grouped course matches the search criteria
+    const matches = searchTerm === "" || parts.some(coursePart => matchesSearchCriteria(coursePart, searchTerm));
     
-    if (searchTerm === "" || searchableString.includes(searchLower)) {
-      if (count >= maxRender && searchTerm === "") break;
-      
+    const courseCode = getCourseCode(key);
+    
+    if (!courseCodeGroups.has(courseCode)) {
+      courseCodeGroups.set(courseCode, []);
+    }
+    
+    courseCodeGroups.get(courseCode).push({
+      key,
+      parts,
+      matches
+    });
+  }
+  
+  // Sort courseCodeGroups by course code (alphabetically/numerically)
+  const sortedCourses = Array.from(courseCodeGroups.entries()).sort((a, b) => {
+    const codeA = a[0].toLowerCase();
+    const codeB = b[0].toLowerCase();
+    // Extract letters and numbers for natural sorting
+    const aMatch = codeA.match(/([a-z]+)(\d+)/);
+    const bMatch = codeB.match(/([a-z]+)(\d+)/);
+    if (aMatch && bMatch) {
+      if (aMatch[1] !== bMatch[1]) {
+        return aMatch[1].localeCompare(bMatch[1]);
+      }
+      return parseInt(aMatch[2]) - parseInt(bMatch[2]);
+    }
+    return codeA.localeCompare(codeB);
+  });
+  
+  // Build display structure organized by course code
+  let count = 0;
+  for (const [courseCode, sections] of sortedCourses) {
+    // Sort sections by section number
+    const sortedSections = sections.sort((a, b) => {
+      const aSecNum = parseInt(parseCourseParts(a.parts[0]).sectionNum) || 0;
+      const bSecNum = parseInt(parseCourseParts(b.parts[0]).sectionNum) || 0;
+      return aSecNum - bSecNum;
+    });
+    
+    const matchingSections = sortedSections.filter(s => s.matches);
+    
+    if (matchingSections.length === 0 && searchTerm !== "") continue;
+    
+    if (count >= maxRender && searchTerm === "") break;
+    
+    // Create course group container with left border
+    const groupDiv = document.createElement("div");
+    groupDiv.style.borderLeft = "3px solid var(--neon-cyan)";
+    groupDiv.style.paddingLeft = "15px";
+    groupDiv.style.marginBottom = "15px";
+    
+    // Create course code header with section count
+    const headerDiv = document.createElement("div");
+    headerDiv.style.fontWeight = "700";
+    headerDiv.style.color = "var(--accent-primary)";
+    headerDiv.style.marginBottom = "10px";
+    headerDiv.textContent = `${courseCode} (${matchingSections.length} section${matchingSections.length !== 1 ? 's' : ''})`;
+    groupDiv.appendChild(headerDiv);
+    
+    // Add sections under this course code
+    for (const section of matchingSections) {
       const div = document.createElement("div");
       div.className = "course";
       div.style.flexDirection = "column";
       div.style.alignItems = "flex-start";
       div.style.gap = "10px";
-
+      div.style.marginBottom = "10px";
+      
       const title = document.createElement("span");
-      title.textContent = key;
+      title.textContent = section.key;
       title.style.fontWeight = "700";
       title.style.color = "var(--accent-primary)";
       
@@ -3115,27 +3261,27 @@ function renderCourses(searchTerm = "") {
       timesDiv.style.fontSize = "0.95rem";
       timesDiv.style.color = "var(--text-muted)";
       timesDiv.style.marginBottom = "5px";
-      parts.forEach(p => {
-          const tMatch = p.match(/\[(.*?)\]/);
-          if (tMatch) {
-              const td = document.createElement("div");
-              td.textContent = `• ${tMatch[1]}`;
-              timesDiv.appendChild(td);
-          }
+      section.parts.forEach(p => {
+        const tMatch = p.match(/\[(.*?)\]/);
+        if (tMatch) {
+          const td = document.createElement("div");
+          td.textContent = `• ${tMatch[1]}`;
+          timesDiv.appendChild(td);
+        }
       });
       
-      const isSelected = selected.includes(parts[0]);
+      const isSelected = selected.includes(section.parts[0]);
       const btn = document.createElement("button");
       btn.textContent = isSelected ? "Drop Section" : "Add Section";
       if (isSelected) {
         btn.classList.add("btn-remove");
       }
-
+      
       btn.onclick = () => {
         if (isSelected) {
-          selected = selected.filter(c => !parts.includes(c));
+          selected = selected.filter(c => !section.parts.includes(c));
         } else {
-          const newCode = getCourseCode(key);
+          const newCode = getCourseCode(section.key);
           const sameCourse = selected.find(c => getCourseCode(c) === newCode);
           if (sameCourse) {
             alert(`You have already selected a section for ${newCode}!\nRemove it first if you want to change.`);
@@ -3143,47 +3289,49 @@ function renderCourses(searchTerm = "") {
           }
           
           let clashCourse = null;
-          for (let p of parts) {
-              const newTiming = parseTiming(p);
-              if (newTiming) {
-                  clashCourse = selected.find(c => hasClash(newTiming, parseTiming(c)));
-                  if (clashCourse) break;
-              }
+          for (let p of section.parts) {
+            const newTiming = parseTiming(p);
+            if (newTiming) {
+              clashCourse = selected.find(c => hasClash(newTiming, parseTiming(c)));
+              if (clashCourse) break;
+            }
           }
           if (clashCourse) {
-            alert(`Time clash detected between:\n- ${key}\n- ${clashCourse}`);
+            alert(`Time clash detected between:\n- ${section.key}\n- ${clashCourse}`);
             return;
           }
           
-          selected.push(...parts);
+          selected.push(...section.parts);
         }
         renderCourses(searchInput.value);
         renderSelected();
       };
       
-      const headerDiv = document.createElement("div");
-      headerDiv.style.display = "flex";
-      headerDiv.style.justifyContent = "space-between";
-      headerDiv.style.width = "100%";
-      headerDiv.appendChild(title);
-      headerDiv.appendChild(btn);
-
-      div.appendChild(headerDiv);
+      const btnHeaderDiv = document.createElement("div");
+      btnHeaderDiv.style.display = "flex";
+      btnHeaderDiv.style.justifyContent = "space-between";
+      btnHeaderDiv.style.width = "100%";
+      btnHeaderDiv.appendChild(title);
+      btnHeaderDiv.appendChild(btn);
+      
+      div.appendChild(btnHeaderDiv);
       if (timesDiv.children.length > 0) {
         div.appendChild(timesDiv);
       }
       
-      courseList.appendChild(div);
-      count++;
+      groupDiv.appendChild(div);
     }
+    
+    courseList.appendChild(groupDiv);
+    count++;
   }
   
   if (count === 0) {
-      const msg = document.createElement("div");
-      msg.textContent = "No courses found.";
-      msg.style.padding = "20px";
-      msg.style.color = "var(--text-muted)";
-      courseList.appendChild(msg);
+    const msg = document.createElement("div");
+    msg.textContent = "No courses found.";
+    msg.style.padding = "20px";
+    msg.style.color = "var(--text-muted)";
+    courseList.appendChild(msg);
   }
 }
 

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="out">Processing...</div>
+<script>
+fetch('Faculty_List_Summer-2026.(Date_ 2026-03-31).xlsx')
+  .then(res => res.arrayBuffer())
+  .then(ab => {
+    var wb = XLSX.read(ab, {type:'array'});
+    var wsname = wb.SheetNames[0];
+    var ws = wb.Sheets[wsname];
+    var json = XLSX.utils.sheet_to_json(ws);
+    
+    // We only need the exact string formats like "ACT101 (Sec 1) - DACY [MW 11:50 AM - 01:20 PM]"
+    // Excel columns might be: CourseID, Section, Faculty, Day, Time, etc.
+    // Let's first log 5 to see what the columns are named.
+    document.getElementById('out').innerText = JSON.stringify(json.slice(0, 10));
+  })
+  .catch(err => {
+    document.getElementById('out').innerText = 'ERROR: ' + err.message;
+  });
+</script>
+</body>
+</html>

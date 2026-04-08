@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="out">Processing...</div>
+<script>
+fetch('b64.txt')
+  .then(res => res.text())
+  .then(b64 => {
+    var binaryString = window.atob(b64);
+    var len = binaryString.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    var wb = XLSX.read(bytes.buffer, {type:'array'});
+    var wsname = wb.SheetNames[0];
+    var ws = wb.Sheets[wsname];
+    var json = XLSX.utils.sheet_to_json(ws);
+    
+    // Format to matches what's in script.js
+    // "ACT101 (Sec 1) - DACY [MW 11:50 AM - 01:20 PM]"
+    let result = [];
+    for(let row of json) {
+      if (row.Course && row.Section && row.Faculty && row.Time) {
+         // Some rows have "Days " or "Days", "Time" etc, let's see actual property names
+         let courseStr = "";
+         let keys = Object.keys(row);
+         // Build a string for debugging
+         result.push(row);
+      } else {
+         result.push(row);
+      }
+    }
+    document.getElementById('out').innerText = JSON.stringify(result);
+  })
+  .catch(err => {
+    document.getElementById('out').innerText = 'ERROR: ' + err.message;
+  });
+</script>
+</body>
+</html>
