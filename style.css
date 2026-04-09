@@ -1,20 +1,20 @@
 :root {
-  /* Professional Dark Theme - Course Selection */
-  --bg-color: #0a0e27;
-  --panel-bg: rgba(10, 14, 39, 0.2);
-  --accent-primary: #06d6d0;
-  --accent-primary-hover: #06d6d0;
-  --accent-danger: #f72585;
-  --accent-danger-hover: #f72585;
-  --accent-neon-lime: #3fff00;
-  --accent-neon-magenta: #b804d6;
-  --text-main: #e0e7ff;
-  --text-muted: #a0aec0;
-  --neon-cyan: #06d6d0;
-  --neon-purple: #b804d6;
-  --neon-green: #3fff00;
-  --glass-border: rgba(6, 214, 208, 0.15);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  /* Elegant Dark Theme - Course Selection */
+  --bg-color: #0f1419;
+  --panel-bg: rgba(20, 30, 48, 0.25);
+  --accent-primary: #d4af37;
+  --accent-primary-hover: #e8c547;
+  --accent-danger: #ff6b6b;
+  --accent-danger-hover: #ff8787;
+  --accent-neon-lime: #a8e6cf;
+  --accent-neon-magenta: #c48fd1;
+  --text-main: #f0f4f8;
+  --text-muted: #9ca3af;
+  --neon-cyan: #7dd3d3;
+  --neon-purple: #b8a8d8;
+  --neon-green: #a8e6cf;
+  --glass-border: rgba(212, 175, 55, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -31,14 +31,17 @@ body {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(-45deg, #0a0e27, #1a1b3f, #0f1626, #2d1b4e);
+  background: linear-gradient(-45deg, #0f1419, #1a2332, #141f2e, #1d2d3d);
   background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+  animation: gradientBG 25s ease infinite;
+  position: relative;
 }
 
 @keyframes gradientBG {
   0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 0%; }
+  75% { background-position: 0% 100%; }
   100% { background-position: 0% 50%; }
 }
 
@@ -50,6 +53,7 @@ body {
   z-index: -1;
   overflow: hidden;
   background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
 }
 
 .glow-orb {
@@ -57,27 +61,49 @@ body {
   border-radius: 50%;
   filter: blur(120px);
   opacity: 0.8;
-  animation: float 25s infinite alternate ease-in-out;
+  animation: float 30s infinite ease-in-out;
 }
 
 .orb-1 {
   top: -10%; left: -10%;
   width: 60vw; height: 60vw;
-  background: rgba(63, 255, 0, 0.15);
+  background: rgba(212, 175, 55, 0.08);
   filter: blur(150px);
+  animation: floatOrb1 30s infinite ease-in-out;
+  box-shadow: 0 0 120px 60px rgba(212, 175, 55, 0.06);
 }
 
 .orb-2 {
   bottom: -20%; right: -10%;
   width: 70vw; height: 70vw;
-  background: rgba(6, 214, 208, 0.12);
-  animation-delay: -12s;
+  background: rgba(125, 211, 211, 0.06);
+  animation: floatOrb2 35s infinite ease-in-out;
   filter: blur(150px);
+  animation-delay: 0s;
+  box-shadow: 0 0 140px 70px rgba(125, 211, 211, 0.04);
 }
 
 @keyframes float {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(40px, 60px) scale(1.05); }
+  50% { transform: translate(50px, 80px) scale(1.08); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes floatOrb1 {
+  0% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(60px, 100px) scale(1.1); }
+  50% { transform: translate(100px, 50px) scale(1.05); }
+  75% { transform: translate(40px, 120px) scale(1.08); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes floatOrb2 {
+  0% { transform: translate(0, 0) scale(1); }
+  20% { transform: translate(-80px, 60px) scale(1.06); }
+  40% { transform: translate(-50px, -100px) scale(1.1); }
+  60% { transform: translate(-120px, 50px) scale(1.04); }
+  80% { transform: translate(-40px, 80px) scale(1.08); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 
 header {
@@ -90,8 +116,8 @@ header {
   font-size: 2.8rem;
   font-weight: 700;
   letter-spacing: -0.5px;
-  color: #e0e7ff;
-  text-shadow: 0 2px 10px rgba(6, 214, 208, 0.2);
+  color: #f0f4f8;
+  text-shadow: 0 2px 10px rgba(212, 175, 55, 0.15);
 }
 
 .container {
@@ -116,13 +142,13 @@ header {
   display: flex;
   gap: 10px;
   margin-bottom: 30px;
-  border-bottom: 1px solid rgba(6, 214, 208, 0.2);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
   padding-bottom: 15px;
 }
 
 .tab-btn {
   padding: 12px 24px;
-  border: 1px solid rgba(6, 214, 208, 0.3);
+  border: 1px solid rgba(212, 175, 55, 0.2);
   background: rgba(255, 255, 255, 0.05);
   color: var(--text-muted);
   border-radius: 8px;
@@ -133,17 +159,17 @@ header {
 }
 
 .tab-btn:hover {
-  border-color: rgba(6, 214, 208, 0.6);
-  color: var(--neon-cyan);
-  background: rgba(6, 214, 208, 0.08);
-  box-shadow: 0 2px 8px rgba(6, 214, 208, 0.1);
+  border-color: rgba(212, 175, 55, 0.5);
+  color: var(--accent-primary);
+  background: rgba(212, 175, 55, 0.08);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
 }
 
 .tab-btn.active {
-  background: rgba(6, 214, 208, 0.15);
-  color: var(--neon-cyan);
-  border-color: rgba(6, 214, 208, 0.6);
-  box-shadow: 0 2px 12px rgba(6, 214, 208, 0.15);
+  background: rgba(212, 175, 55, 0.12);
+  color: var(--accent-primary);
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 2px 12px rgba(212, 175, 55, 0.12);
 }
 
 .tab-content {
@@ -154,7 +180,7 @@ header {
   -webkit-backdrop-filter: blur(15px);
   border-radius: 12px;
   padding: 20px;
-  border: 1px solid rgba(6, 214, 208, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.02);
 }
 
@@ -214,7 +240,7 @@ h2, h3 {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(6, 214, 208, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   border-radius: 12px;
   color: var(--text-main);
   font-size: 1rem;
@@ -225,8 +251,8 @@ h2, h3 {
 
 .search-box input:focus {
   background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(6, 214, 208, 0.6);
-  box-shadow: 0 2px 16px rgba(6, 214, 208, 0.15), inset 0 0 15px rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.5);
+  box-shadow: 0 2px 16px rgba(212, 175, 55, 0.12), inset 0 0 15px rgba(255, 255, 255, 0.03);
 }
 
 .search-box input::placeholder {
@@ -239,29 +265,29 @@ h2, h3 {
   padding-right: 15px;
 }
 
-/* Custom Scrollbar - Neon */
+/* Custom Scrollbar - Elegant Gold */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.3);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 255, 0.6);
+  background: rgba(212, 175, 55, 0.5);
   border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), 0 0 15px rgba(0, 255, 136, 0.4);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4), 0 0 15px rgba(168, 230, 207, 0.2);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 255, 1);
-  box-shadow: 0 0 30px rgba(0, 255, 255, 0.9), 0 0 20px rgba(0, 255, 136, 0.6), 0 0 20px rgba(221, 0, 255, 0.4);
+  background: rgba(212, 175, 55, 0.8);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.6), 0 0 20px rgba(168, 230, 207, 0.3), 0 0 20px rgba(125, 211, 211, 0.2);
 }
 
 .course {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(6, 214, 208, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   padding: 18px 20px;
   margin-bottom: 12px;
   border-radius: 12px;
@@ -276,8 +302,8 @@ h2, h3 {
 .course:hover {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 4px 16px rgba(6, 214, 208, 0.15), inset 0 0 25px rgba(255, 255, 255, 0.03);
-  border-color: rgba(6, 214, 208, 0.5);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.12), inset 0 0 25px rgba(255, 255, 255, 0.03);
+  border-color: rgba(212, 175, 55, 0.4);
 }
 
 .course span {
@@ -287,9 +313,9 @@ h2, h3 {
 
 button {
   padding: 10px 20px;
-  border: 1px solid rgba(6, 214, 208, 0.4);
-  background: rgba(6, 214, 208, 0.1);
-  color: var(--neon-cyan);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--accent-primary);
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
@@ -300,11 +326,11 @@ button {
 }
 
 button:hover {
-  background: rgba(6, 214, 208, 0.2);
-  color: var(--neon-cyan);
+  background: rgba(212, 175, 55, 0.2);
+  color: var(--accent-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(6, 214, 208, 0.2);
-  border-color: rgba(6, 214, 208, 0.6);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.6);
 }
 
 button:active {
@@ -339,7 +365,7 @@ button.btn-remove:hover {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(6, 214, 208, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   padding: 15px;
   margin-bottom: 12px;
   border-radius: 12px;
@@ -359,7 +385,7 @@ button.btn-remove:hover {
 .selection-summary {
   margin-top: 25px;
   padding-top: 20px;
-  border-top: 1px solid rgba(6, 214, 208, 0.2);
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
   text-align: right;
   font-size: 0.95rem;
   font-weight: 500;
@@ -382,7 +408,7 @@ button.btn-remove:hover {
   -webkit-backdrop-filter: blur(15px);
   padding: 20px;
   border-radius: 16px;
-  border: 1px solid rgba(6, 214, 208, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   overflow-x: auto;
   min-height: 600px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 0 25px rgba(255, 255, 255, 0.02);
@@ -395,17 +421,17 @@ button.btn-remove:hover {
   font-size: 0.9rem;
   text-align: center;
   text-shadow: none;
-  border-bottom: 1px solid rgba(6, 214, 208, 0.2);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 .schedule-day-header {
   padding: 12px;
   text-align: center;
-  background: rgba(6, 214, 208, 0.08);
-  color: var(--neon-cyan);
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--accent-primary);
   font-weight: 600;
   text-shadow: none;
-  border-bottom: 1px solid rgba(6, 214, 208, 0.2);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2);
   border-radius: 8px 8px 0 0;
 }
 
@@ -413,14 +439,14 @@ button.btn-remove:hover {
   padding: 12px;
   text-align: center;
   font-size: 0.85rem;
-  color: rgba(0, 255, 255, 0.7);
-  border-right: 1px solid rgba(0, 255, 255, 0.2);
+  color: rgba(212, 175, 55, 0.7);
+  border-right: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 .schedule-cell {
   position: relative;
   min-height: 60px;
-  border: 1px solid rgba(6, 214, 208, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.15);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(8px);
@@ -435,13 +461,13 @@ button.btn-remove:hover {
   right: 0;
   padding: 8px;
   border-radius: 6px;
-  border: 1px solid rgba(6, 214, 208, 0.4);
-  background: rgba(6, 214, 208, 0.12);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  background: rgba(212, 175, 55, 0.12);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--neon-cyan);
+  color: var(--accent-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -450,37 +476,37 @@ button.btn-remove:hover {
 }
 
 .schedule-course:nth-child(1) {
-  background: rgba(6, 214, 208, 0.12);
-  border-color: rgba(6, 214, 208, 0.4);
-  color: var(--neon-cyan);
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.4);
+  color: var(--accent-primary);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 0 12px rgba(255, 255, 255, 0.02);
 }
 
 .schedule-course:nth-child(2) {
-  background: rgba(184, 4, 214, 0.12);
-  border-color: rgba(184, 4, 214, 0.4);
-  color: #b804d6;
+  background: rgba(125, 211, 211, 0.12);
+  border-color: rgba(125, 211, 211, 0.4);
+  color: #7dd3d3;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 0 12px rgba(255, 255, 255, 0.02);
 }
 
 .schedule-course:nth-child(3) {
-  background: rgba(63, 255, 0, 0.12);
-  border-color: rgba(63, 255, 0, 0.4);
-  color: #3fff00;
+  background: rgba(184, 230, 196, 0.12);
+  border-color: rgba(168, 230, 207, 0.4);
+  color: #a8e6cf;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 0 12px rgba(255, 255, 255, 0.02);
 }
 
 .schedule-course:nth-child(4) {
-  background: rgba(6, 214, 200, 0.12);
-  border-color: rgba(6, 214, 200, 0.4);
-  color: rgba(6, 214, 200, 1);
+  background: rgba(196, 143, 209, 0.12);
+  border-color: rgba(184, 168, 216, 0.4);
+  color: #c48fd1;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 0 12px rgba(255, 255, 255, 0.02);
 }
 
 .schedule-course:nth-child(n + 5) {
-  background: rgba(184, 100, 200, 0.12);
-  border-color: rgba(184, 100, 200, 0.4);
-  color: rgba(184, 150, 200, 1);
+  background: rgba(232, 197, 71, 0.12);
+  border-color: rgba(232, 197, 71, 0.4);
+  color: rgba(232, 197, 71, 0.9);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15), inset 0 0 12px rgba(255, 255, 255, 0.02);
 }
 
@@ -489,7 +515,7 @@ button.btn-remove:hover {
   padding: 60px 20px;
   color: var(--text-muted);
   font-size: 1.1rem;
-  border: 1px dashed rgba(6, 214, 208, 0.3);
+  border: 1px dashed rgba(212, 175, 55, 0.3);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
