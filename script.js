@@ -3587,4 +3587,35 @@ window.renderSelected = function() {
   renderSchedule();
 };
 
+// Generate stars
+function createStars() {
+  const starsContainer = document.getElementById('stars');
+  if (!starsContainer) return;
+  
+  const starCount = 80;
+  
+  for (let i = 0; i < starCount; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const size = Math.random() * 2 + 1;
+    const duration = Math.random() * 4 + 3;
+    const delay = Math.random() * 5;
+    const opacity = Math.random() * 0.6 + 0.2;
+    
+    star.style.left = `${x}%`;
+    star.style.top = `${y}%`;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.setProperty('--duration', `${duration}s`);
+    star.style.setProperty('--delay', `${delay}s`);
+    star.style.setProperty('--opacity', opacity);
+    
+    starsContainer.appendChild(star);
+  }
+}
+
+createStars();
 renderCourses();
