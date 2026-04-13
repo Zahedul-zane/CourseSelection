@@ -24,11 +24,7 @@ const ThemeManager = (() => {
     
     tabBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        const tab = btn.getAttribute('data-tab');
-        let theme = 'gold';
-        if (tab === 'schedule') theme = 'cyan';
-        if (tab === 'gpa') theme = 'red';
-        
+        const theme = 'cyan';
         setTheme(theme);
         previousTabTheme = theme;
       });
@@ -36,7 +32,7 @@ const ThemeManager = (() => {
   };
 
   initTabs();
-  setTheme('gold'); // Initial state
+  setTheme('cyan'); // Initial state (Cyan Overhaul)
 
   return {
     setTheme,
@@ -391,7 +387,7 @@ const ThemeManager = (() => {
     finalGpaEl.textContent = overallCgpa.toFixed(2);
     
     // Aesthetic update for GPA color
-    if (overallCgpa >= 3.5) finalGpaEl.style.color = '#d4af37';
+    if (overallCgpa >= 3.5) finalGpaEl.style.color = 'var(--theme-color)';
     else if (overallCgpa >= 2.5) finalGpaEl.style.color = '#fff8e7';
     else if (overallCgpa > 0) finalGpaEl.style.color = '#ff4d6d';
   }
@@ -408,8 +404,8 @@ const ThemeManager = (() => {
     // Summary Section in Modal
     const summaryItem = document.createElement('div');
     summaryItem.className = 'list-item';
-    summaryItem.style.background = 'rgba(212, 175, 55, 0.08)';
-    summaryItem.style.border = '1px solid rgba(212, 175, 55, 0.2)';
+    summaryItem.style.background = 'rgba(var(--theme-color-rgb), 0.1)';
+    summaryItem.style.border = '1px solid rgba(var(--theme-color-rgb), 0.3)';
     summaryItem.style.marginBottom = '20px';
     
     const summaryTitle = document.createElement('div');
