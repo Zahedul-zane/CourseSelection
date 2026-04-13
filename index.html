@@ -33,15 +33,23 @@
         </div>
     </div>
 
+    <!-- Semester badge watermark -->
+    <div class="semester-badge">Summer 2026</div>
+
     <header>
         <h1 class="neon-text">Course Selection System</h1>
-        <h1 class="neon-text">ON desktop mode when using phone browser</h1>
+        <p class="header-sub">ON desktop mode when using phone browser</p>
+        <div class="live-clock-widget">
+            <div class="clock-time" id="liveClock">--:--:--</div>
+            <div class="clock-date" id="liveDate">Loading...</div>
+        </div>
     </header>
 
     <main class="container glass-panel">
         <div class="tabs">
             <button class="tab-btn active" data-tab="search">Search Courses</button>
             <button class="tab-btn" data-tab="schedule">View Schedule</button>
+            <button class="tab-btn" data-tab="gpa">GPA Calculator</button>
         </div>
 
         <div class="main-content">
@@ -60,6 +68,7 @@
                         <ul id="selectedCourses" class="scroll-container"></ul>
                         <div class="selection-summary">
                             <span id="selectCount">0 selected</span>
+                            <button id="generateListBtn" class="unique-btn">Generate List</button>
                         </div>
                     </aside>
                 </div>
@@ -72,9 +81,84 @@
                     <div id="noScheduleMsg" class="no-schedule">Select courses to view schedule</div>
                 </div>
             </section>
+
+            <section id="gpa-tab" class="tab-content">
+                <div class="gpa-container">
+                    <div class="gpa-header">
+                        <h2>CGPA Calculator</h2>
+                        <p class="text-muted">Calculate your GPA and track your progress</p>
+                    </div>
+                    
+                    <div class="gpa-grid">
+                        <div class="gpa-inputs glass-panel">
+                            <div class="gpa-historical-data">
+                                <div class="input-group">
+                                    <label>Previous CGPA</label>
+                                    <input type="number" id="prevCgpa" step="0.01" min="0" max="4" placeholder="0.00">
+                                </div>
+                                <div class="input-group">
+                                    <label>Previous Total Credits</label>
+                                    <input type="number" id="prevCredits" step="0.5" min="0" placeholder="0.0">
+                                </div>
+                            </div>
+
+                            <div class="gpa-table-header">
+                                <span>Course Name</span>
+                                <span>Credits</span>
+                                <span>Grade</span>
+                                <span></span>
+                            </div>
+                            <div id="gpaRows" class="gpa-rows">
+                                <!-- Dynamic rows here -->
+                            </div>
+                            <button id="addGpaRow" class="unique-btn" style="margin: 20px 0 0 0; width: 100%;">+ Add Course</button>
+                        </div>
+                        
+                        <div class="gpa-summary glass-panel">
+                            <h3>Summary</h3>
+                            <div class="summary-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Semester GPA</span>
+                                    <span id="semesterGpa" class="stat-value gpa-glow-small">0.00</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Credits (All)</span>
+                                    <span id="totalCredits" class="stat-value">0.0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Overall CGPA</span>
+                                    <span id="finalGpa" class="stat-value gpa-glow">0.00</span>
+                                </div>
+                            </div>
+                            <div class="gpa-scale-info">
+                                <span>University Grading Scale (A+ to F)</span>
+                            </div>
+                            <button id="generateGpaReportBtn" class="unique-btn" style="margin-top: 25px; width: 100%;">Generate Report</button>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
+    <!-- Modal for Course List -->
+    <div id="listModal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2>Your Chosen Courses</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div id="modalListContent" class="modal-body">
+                <!-- List will be injected here -->
+            </div>
+            <div class="modal-footer">
+                <button id="copyListBtn" class="unique-btn">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
+    <script src="unique-effects.js"></script>
 </body>
 </html>
