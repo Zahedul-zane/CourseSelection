@@ -72,7 +72,7 @@ const ThemeManager = (() => {
   let interactionTriggered = false;
 
   function burst(cx, cy) {
-    const colors = ['#6FCF97', '#2FA084', '#1F6F5F', '#EEEEEE'];
+    const colors = ['#7c3aed', '#a78bfa', '#c084fc', '#f0abfc', '#2dd4bf', '#fbbf24'];
     const COUNT = 12;
     
     for (let i = 0; i < COUNT; i++) {
@@ -195,7 +195,7 @@ const ThemeManager = (() => {
   copyBtn.addEventListener('click', () => {
     const modalTitle = document.querySelector('#listModal h2').textContent;
     const items = listContent.querySelectorAll('.list-item');
-    let text = `${modalTitle} (Summer 2026)\n${'='.repeat(modalTitle.length + 14)}\n\n`;
+    let text = `${modalTitle} (Fall 2026)\n${'='.repeat(modalTitle.length + 12)}\n\n`;
     
     items.forEach(item => {
       const titleEl = item.querySelector('.list-item-title');
@@ -308,7 +308,7 @@ const ThemeManager = (() => {
 
   reportBtn.addEventListener('click', () => {
     const rows = gpaRowsContainer.querySelectorAll('.gpa-row-entry');
-    let reportText = `🎓 CGPA ACADEMIC REPORT (Emerald Edition)\n`;
+    let reportText = `🎓 CGPA ACADEMIC REPORT (Fall 2026 — EWU)\n`;
     reportText += `Generated: ${new Date().toLocaleDateString()}\n`;
     reportText += `====================================\n\n`;
     

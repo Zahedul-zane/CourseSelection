@@ -1,3 +1,3 @@
-$bytes = [System.IO.File]::ReadAllBytes("f:\Course selection\Faculty_List_Summer-2026.(Date_ 2026-03-31).xlsx")
+$bytes = [System.IO.File]::ReadAllBytes("f:\ALL PROJECT\Course selection\Faculty_List_Fall-2026..xlsx")
 $b64 = [System.Convert]::ToBase64String($bytes)
-Set-Content -Path "f:\Course selection\b64.txt" -Value $b64
+Set-Content -Path "f:\ALL PROJECT\Course selection\b64.txt" -Value $b64

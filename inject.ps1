@@ -1,4 +1,4 @@
-$b64 = Get-Content -Path "f:\Course selection\b64.txt" -Raw
+$b64 = Get-Content -Path "f:\ALL PROJECT\Course selection\b64.txt" -Raw
 $html = @"
 <!DOCTYPE html>
 <html>
@@ -30,4 +30,4 @@ $html = @"
 </body>
 </html>
 "@
-Set-Content -Path "f:\Course selection\parse4.html" -Value $html
+Set-Content -Path "f:\ALL PROJECT\Course selection\parse4.html" -Value $html
