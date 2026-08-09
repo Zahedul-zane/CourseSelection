@@ -31,6 +31,7 @@
             <button class="tab-btn active" data-tab="search">Search Courses</button>
             <button class="tab-btn" data-tab="schedule">View Schedule</button>
             <button class="tab-btn" data-tab="gpa">GPA Calculator</button>
+            <button class="tab-btn" data-tab="finding-courses">Finding Courses</button>
         </div>
 
         <div class="main-content">
@@ -120,6 +121,134 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Finding Courses Tab -->
+            <section id="finding-courses-tab" class="tab-content">
+                <div class="curriculum-container">
+                    <!-- Top Department Header & Program Selector -->
+                    <div class="curriculum-header glass-panel">
+                        <div class="curriculum-title-wrap">
+                            <h2>Curriculum & Course Finder</h2>
+                            <p class="text-muted">Explore full curriculum sheets for CSE and ICE programs with interactive prerequisite tracking</p>
+                        </div>
+
+                        <div class="program-selector">
+                            <button class="program-btn active" data-program="CSE">
+                                <span class="prog-code">CSE</span>
+                                <span class="prog-title">Computer Science & Engineering</span>
+                                <span class="prog-credits">148.5 Credits</span>
+                            </button>
+                            <button class="program-btn" data-program="ICE">
+                                <span class="prog-code">ICE</span>
+                                <span class="prog-title">Information & Communication Eng.</span>
+                                <span class="prog-credits">140 Credits</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Curriculum Stats Bar -->
+                    <div class="curriculum-stats-grid">
+                        <div class="curr-stat-card">
+                            <span class="stat-num" id="currTotalCredits">148.5</span>
+                            <span class="stat-lbl">Degree Credits</span>
+                        </div>
+                        <div class="curr-stat-card">
+                            <span class="stat-num" id="currTotalCourses">68</span>
+                            <span class="stat-lbl">Total Courses</span>
+                        </div>
+                        <div class="curr-stat-card">
+                            <span class="stat-num" id="currCategoriesCount">8</span>
+                            <span class="stat-lbl">Course Categories</span>
+                        </div>
+                        <div class="curr-stat-card">
+                            <span class="stat-num" id="currFilteredCount">68</span>
+                            <span class="stat-lbl">Matching Search</span>
+                        </div>
+                    </div>
+
+                    <!-- Search & Filter Controls -->
+                    <div class="curriculum-controls glass-panel">
+                        <div class="search-filter-row">
+                            <div class="curr-search-box">
+                                <span class="search-icon">🔍</span>
+                                <input type="text" id="curriculumSearch" placeholder="Search by course code, name, prerequisite (e.g. CSE103, Algorithms, MAT102)..." autocomplete="off">
+                                <button id="clearCurrSearch" class="clear-btn" style="display:none;">&times;</button>
+                            </div>
+
+                            <div class="filter-select-group">
+                                <select id="currCategoryFilter" class="curr-select">
+                                    <option value="ALL">All Categories & Groups</option>
+                                </select>
+
+                                <select id="currMajorFilter" class="curr-select">
+                                    <option value="ALL">All Major Areas & Tracks</option>
+                                    <option value="Intelligent Systems & Data Science">1. Intelligent Systems & Data Science</option>
+                                    <option value="Software Engineering">2. Software Engineering</option>
+                                    <option value="Communications & Networking">3. Communications & Networking</option>
+                                    <option value="Hardware Engineering">4. Hardware Engineering</option>
+                                    <option value="Computational Theory">Non-Major: Computational Theory</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="view-and-actions-row">
+                            <div class="view-mode-tabs">
+                                <button class="view-mode-btn active" data-view="sheet">📊 Full Sheet View</button>
+                                <button class="view-mode-btn" data-view="cards">📑 Category Cards</button>
+                                <button class="view-mode-btn" data-view="flowchart">🗺️ 4-Year Flowchart</button>
+                            </div>
+
+                            <div class="action-btn-group">
+                                <button id="exportCurrCsvBtn" class="unique-btn secondary-btn">📥 Export Sheet (CSV)</button>
+                                <button id="resetCurrFiltersBtn" class="unique-btn secondary-btn">🔄 Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main View Content Area -->
+                    <div class="curriculum-view-content">
+                        <!-- View 1: Interactive Full Data Sheet Table -->
+                        <div id="currSheetView" class="curriculum-view active glass-panel">
+                            <div class="table-responsive">
+                                <table class="curriculum-table" id="curriculumSheetTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px;">#</th>
+                                            <th class="sortable" data-sort="code">Course Code <span class="sort-icon">↕</span></th>
+                                            <th class="sortable" data-sort="title">Course Name <span class="sort-icon">↕</span></th>
+                                            <th class="sortable" data-sort="credits">Credits <span class="sort-icon">↕</span></th>
+                                            <th class="sortable" data-sort="prereq">Prerequisites <span class="sort-icon">↕</span></th>
+                                            <th class="sortable" data-sort="category">Category / Area <span class="sort-icon">↕</span></th>
+                                            <th style="width: 140px; text-align: center;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="curriculumSheetBody">
+                                        <!-- Dynamic sheet rows injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- View 2: Grouped Category Cards -->
+                        <div id="currCardsView" class="curriculum-view">
+                            <div class="curr-cards-grid" id="curriculumCardsContainer">
+                                <!-- Dynamic category cards injected here -->
+                            </div>
+                        </div>
+
+                        <!-- View 3: 4-Year Flowchart Roadmap -->
+                        <div id="currFlowchartView" class="curriculum-view">
+                            <div class="flowchart-header">
+                                <h3>Four-Year Course Flowchart & Semester Sequence</h3>
+                                <p class="text-muted">Recommended semester-by-semester sequence for completing degree requirements</p>
+                            </div>
+                            <div class="flowchart-roadmap" id="curriculumFlowchartContainer">
+                                <!-- Dynamic flowchart grid injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </main>
 
@@ -139,6 +268,27 @@
         </div>
     </div>
 
+    <!-- Modal for Course & Prerequisite Details -->
+    <div id="prereqModal" class="modal-overlay">
+        <div class="modal-content glass-panel prereq-modal-content">
+            <div class="modal-header">
+                <div class="prereq-modal-title">
+                    <span id="prereqModalCode" class="modal-code-badge">CSE103</span>
+                    <h2 id="prereqModalTitle">Course Prerequisite & Tree</h2>
+                </div>
+                <button class="close-modal" id="closePrereqModal">&times;</button>
+            </div>
+            <div id="prereqModalContent" class="modal-body">
+                <!-- Course details and prerequisite tree injected here -->
+            </div>
+            <div class="modal-footer">
+                <button id="searchSectionFromModalBtn" class="unique-btn">🔍 Search Available Sections in Semester</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="curriculum-data.js"></script>
+    <script src="curriculum-app.js"></script>
     <script src="script.js"></script>
     <script src="unique-effects.js"></script>
 </body>
