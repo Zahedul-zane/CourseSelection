@@ -212,7 +212,7 @@ const ThemeManager = (() => {
   });
 })();
 
-/* ── 4. CGPA CALCULATOR LOGIC ── */
+/* ── 4. CGPA CALCULATOR & COURSE AUTO-FILL LOGIC ── */
 (function initGpaCalculator() {
   const gpaRowsContainer = document.getElementById('gpaRows');
   const addRowBtn        = document.getElementById('addGpaRow');
@@ -233,17 +233,164 @@ const ThemeManager = (() => {
     'D+': 1.3, 'D': 1.0, 'F': 0.0
   };
 
-  function createRow() {
+  // Helper to extract numeric credits (e.g. "3+1=4" -> 4, "3" -> 3)
+  function parseNumericCredits(credStr) {
+    if (!credStr) return 3;
+    if (typeof credStr === 'number') return credStr;
+    const str = String(credStr).trim();
+    if (str.includes('=')) {
+      const parts = str.split('=');
+      const val = parseFloat(parts[parts.length - 1]);
+      if (!isNaN(val)) return val;
+    }
+    const match = str.match(/[\d.]+/);
+    return match ? parseFloat(match[0]) : 3;
+  }
+
+  // Get master list of courses for autocomplete lookup
+  function getMasterCourseList() {
+    const list = [];
+    const map = new Map();
+
+    const processArr = (arr) => {
+      if (!Array.isArray(arr)) return;
+      arr.forEach(c => {
+        if (c && c.code && !map.has(c.code.toUpperCase())) {
+          const numCr = parseNumericCredits(c.credits);
+          const item = {
+            code: c.code.toUpperCase(),
+            title: c.title || '',
+            credits: numCr,
+            rawCredits: c.credits || String(numCr)
+          };
+          map.set(c.code.toUpperCase(), item);
+          list.push(item);
+        }
+      });
+    };
+
+    if (typeof CSE_CURRICULUM_DATA !== 'undefined') processArr(CSE_CURRICULUM_DATA.courses);
+    if (typeof ICE_CURRICULUM_DATA !== 'undefined') processArr(ICE_CURRICULUM_DATA.courses);
+
+    return list;
+  }
+
+  // Show Toast notification banner
+  function showToast(message, actionText, actionCallback) {
+    let container = document.querySelector('.app-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.className = 'app-toast-container';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'app-toast';
+    toast.innerHTML = `<span>${message}</span>`;
+    
+    if (actionText && actionCallback) {
+      const btn = document.createElement('button');
+      btn.className = 'toast-btn';
+      btn.textContent = actionText;
+      btn.onclick = () => {
+        actionCallback();
+        toast.remove();
+      };
+      toast.appendChild(btn);
+    }
+
+    container.appendChild(toast);
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 300);
+      }
+    }, 4000);
+  }
+
+  function createRow(initialName = '', initialCredits = '', initialGrade = 'A') {
     const row = document.createElement('div');
     row.className = 'gpa-row-entry';
     row.innerHTML = `
-      <input type="text" placeholder="e.g. CSE110" class="gpa-name">
-      <input type="number" step="0.5" min="0" placeholder="3.0" class="gpa-credits">
+      <div class="gpa-name-wrap">
+        <input type="text" placeholder="e.g. CSE103 or Physics" class="gpa-name" value="${initialName}" autocomplete="off">
+        <div class="gpa-autocomplete-dropdown" style="display:none;"></div>
+      </div>
+      <input type="number" step="0.5" min="0" placeholder="3.0" class="gpa-credits" value="${initialCredits}">
       <select class="gpa-grade">
-        ${Object.keys(GRADE_SCALE).map(g => `<option value="${g}">${g}</option>`).join('')}
+        ${Object.keys(GRADE_SCALE).map(g => `<option value="${g}" ${g === initialGrade ? 'selected' : ''}>${g}</option>`).join('')}
       </select>
-      <button class="remove-row-btn">&times;</button>
+      <button class="remove-row-btn" title="Remove Course">&times;</button>
     `;
+
+    const nameInput = row.querySelector('.gpa-name');
+    const creditsInput = row.querySelector('.gpa-credits');
+    const dropdown = row.querySelector('.gpa-autocomplete-dropdown');
+
+    // Autocomplete & Auto-Fill handler
+    function handleAutocomplete() {
+      const val = nameInput.value.trim();
+      if (!val) {
+        dropdown.style.display = 'none';
+        return;
+      }
+
+      const allCourses = getMasterCourseList();
+      const query = val.toLowerCase();
+      const matches = allCourses.filter(c => 
+        c.code.toLowerCase().includes(query) || 
+        c.title.toLowerCase().includes(query)
+      ).slice(0, 6);
+
+      // Auto-fill credits if exact code match exists
+      const exactMatch = allCourses.find(c => c.code.toLowerCase() === query);
+      if (exactMatch && (!creditsInput.value || creditsInput.value == 0)) {
+        creditsInput.value = exactMatch.credits;
+        calculateGPA();
+      }
+
+      if (matches.length === 0) {
+        dropdown.style.display = 'none';
+        return;
+      }
+
+      dropdown.innerHTML = '';
+      matches.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'gpa-auto-item';
+        item.innerHTML = `
+          <div>
+            <span class="gpa-auto-code">${c.code}</span>
+            <span class="gpa-auto-title">${c.title}</span>
+          </div>
+          <span class="gpa-auto-credits">${c.credits} Cr</span>
+        `;
+        item.onmousedown = (e) => {
+          e.preventDefault(); // prevent blur
+          nameInput.value = `${c.code} - ${c.title}`;
+          creditsInput.value = c.credits;
+          dropdown.style.display = 'none';
+          calculateGPA();
+        };
+        dropdown.appendChild(item);
+      });
+
+      dropdown.style.display = 'flex';
+    }
+
+    nameInput.addEventListener('input', () => {
+      handleAutocomplete();
+      calculateGPA();
+    });
+
+    nameInput.addEventListener('focus', handleAutocomplete);
+
+    nameInput.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (dropdown) dropdown.style.display = 'none';
+      }, 200);
+    });
 
     row.querySelector('.remove-row-btn').onclick = () => {
       row.style.opacity = '0';
@@ -257,10 +404,12 @@ const ThemeManager = (() => {
     // Add listeners for real-time calculation
     row.querySelectorAll('input, select').forEach(el => {
       el.addEventListener('input', calculateGPA);
+      el.addEventListener('change', calculateGPA);
     });
 
     gpaRowsContainer.appendChild(row);
     calculateGPA();
+    return row;
   }
 
   function calculateGPA() {
@@ -301,7 +450,37 @@ const ThemeManager = (() => {
     });
   }
 
-  addRowBtn.addEventListener('click', createRow);
+  // Global helper for 1-click addition from Curriculum tab
+  window.addCourseToGpaCalculator = function(code, credits, title) {
+    const numCredits = parseNumericCredits(credits);
+    const displayName = code + (title ? ' - ' + title : '');
+
+    // Check if there is an unfilled empty row
+    let targetRow = null;
+    const rows = gpaRowsContainer.querySelectorAll('.gpa-row-entry');
+    rows.forEach(r => {
+      const nInput = r.querySelector('.gpa-name');
+      const cInput = r.querySelector('.gpa-credits');
+      if (!nInput.value.trim() && (!cInput.value || cInput.value == 0) && !targetRow) {
+        targetRow = r;
+      }
+    });
+
+    if (targetRow) {
+      targetRow.querySelector('.gpa-name').value = displayName;
+      targetRow.querySelector('.gpa-credits').value = numCredits;
+      calculateGPA();
+    } else {
+      createRow(displayName, numCredits);
+    }
+
+    showToast(`Added <strong>${code}</strong> (${numCredits} Cr) to GPA Calculator`, 'View GPA Tab', () => {
+      const gpaTabBtn = document.querySelector('.tab-btn[data-tab="gpa"]');
+      if (gpaTabBtn) gpaTabBtn.click();
+    });
+  };
+
+  addRowBtn.addEventListener('click', () => createRow());
   [prevCgpaInput, prevCreditsInput].forEach(input => {
     input.addEventListener('input', calculateGPA);
   });

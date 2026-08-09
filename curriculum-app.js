@@ -315,6 +315,7 @@
           <div style="display: flex; gap: 6px; justify-content: center;">
             <button class="tbl-act-btn" title="View Prerequisite Tree" onclick="window.showPrereqModal('${c.code}')">🔍 Tree</button>
             <button class="tbl-act-btn" title="Search Section" onclick="window.findSectionsInSearchTab('${c.code}')">⚡ Find</button>
+            <button class="tbl-act-btn add-gpa-act-btn" title="Add to GPA Calculator" onclick="window.addCourseToGpaCalculator('${c.code}', '${c.credits}', '${c.title.replace(/'/g, "\\'")}')">➕ GPA</button>
           </div>
         </td>
       `;
@@ -351,14 +352,16 @@
 
       let courseListHtml = '';
       grpCourses.forEach(c => {
+        const safeTitle = c.title.replace(/'/g, "\\'");
         courseListHtml += `
-          <div class="curr-card-item" onclick="window.showPrereqModal('${c.code}')">
-            <div class="curr-card-item-left">
+          <div class="curr-card-item">
+            <div class="curr-card-item-left" onclick="window.showPrereqModal('${c.code}')" style="flex:1;">
               <span class="curr-card-code">${c.code}</span>
               <span class="curr-card-title">${c.title}</span>
             </div>
-            <div class="curr-card-item-right">
+            <div class="curr-card-item-right" style="display:flex; align-items:center; gap:8px;">
               <span class="curr-credits-tag">${c.credits} Cr</span>
+              <button class="tbl-act-btn add-gpa-act-btn" title="Add to GPA Calculator" onclick="event.stopPropagation(); window.addCourseToGpaCalculator('${c.code}', '${c.credits}', '${safeTitle}')">➕ GPA</button>
             </div>
           </div>
         `;
@@ -400,13 +403,17 @@
         let pillsHtml = '';
         if (semCourses.length > 0) {
           semCourses.forEach(c => {
+            const safeTitle = c.title.replace(/'/g, "\\'");
             pillsHtml += `
-              <div class="flowchart-course-pill" onclick="window.showPrereqModal('${c.code}')">
-                <div>
-                  <div class="fc-code">${c.code} (${c.credits})</div>
+              <div class="flowchart-course-pill">
+                <div onclick="window.showPrereqModal('${c.code}')" style="flex:1; cursor:pointer;">
+                  <div class="fc-code">${c.code} (${c.credits} Cr)</div>
                   <div class="fc-title">${c.title}</div>
                 </div>
-                ${c.prereq && c.prereq !== 'None' ? `<span class="fc-prereq">Pre: ${c.prereq}</span>` : ''}
+                <div style="display:flex; align-items:center; gap:6px;">
+                  ${c.prereq && c.prereq !== 'None' ? `<span class="fc-prereq">Pre: ${c.prereq}</span>` : ''}
+                  <button class="tbl-act-btn add-gpa-act-btn" title="Add to GPA Calculator" onclick="event.stopPropagation(); window.addCourseToGpaCalculator('${c.code}', '${c.credits}', '${safeTitle}')">➕ GPA</button>
+                </div>
               </div>
             `;
           });
