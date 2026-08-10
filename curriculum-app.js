@@ -386,44 +386,84 @@
     if (!flowchartContainer) return;
     flowchartContainer.innerHTML = '';
 
+    const activeData = getActiveData();
+    // Use official flowchart list if available, or fall back to filtered active dataset
+    let flowchartSource = activeData.flowchart ? [...activeData.flowchart] : [...activeData.courses];
+
+    // Apply search filter if active
+    if (searchTerm) {
+      flowchartSource = flowchartSource.filter(c =>
+        (c.code && c.code.toLowerCase().includes(searchTerm)) ||
+        (c.title && c.title.toLowerCase().includes(searchTerm)) ||
+        (c.prereq && c.prereq.toLowerCase().includes(searchTerm)) ||
+        (c.category && c.category.toLowerCase().includes(searchTerm))
+      );
+    }
+
     const yearNames = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
     const semNames = ['1st Semester', '2nd Semester', '3rd Semester'];
 
     yearNames.forEach((yName, yIdx) => {
       const yearNum = yIdx + 1;
+      const yearCourses = flowchartSource.filter(c => c.year === yearNum);
+      
+      let yearCreditTotal = 0;
+      yearCourses.forEach(c => {
+        const num = parseFloat(c.credits) || 0;
+        yearCreditTotal += num;
+      });
+
       const yearBlock = document.createElement('div');
       yearBlock.className = 'flowchart-year-block';
 
       let semRowsHtml = '';
       semNames.forEach((sName, sIdx) => {
         const semNum = sIdx + 1;
-        // Filter courses for this year & semester
-        const semCourses = courses.filter(c => c.year === yearNum && c.semester === semNum);
+        const semCourses = yearCourses.filter(c => c.semester === semNum);
 
+        let semCreditTotal = 0;
         let pillsHtml = '';
+
         if (semCourses.length > 0) {
           semCourses.forEach(c => {
-            const safeTitle = c.title.replace(/'/g, "\\'");
+            const num = parseFloat(c.credits) || 0;
+            semCreditTotal += num;
+            const safeTitle = (c.title || '').replace(/'/g, "\\'");
+            const isPlaceholder = !c.code || c.code.startsWith('GE-') || c.code.startsWith('MJR-') || c.code.startsWith('ELC-');
+
+            let actionBtnHtml = '';
+            if (!isPlaceholder) {
+              actionBtnHtml = `<button class="tbl-act-btn add-gpa-act-btn" title="Add to GPA Calculator" onclick="event.stopPropagation(); window.addCourseToGpaCalculator('${c.code}', '${c.credits}', '${safeTitle}')">➕ GPA</button>`;
+            }
+
+            let codeDisplay = c.code || 'ELECTIVE';
+            let cleanCode = c.code ? c.code.split('-')[0] : '';
+            let clickAction = !isPlaceholder ? `onclick="window.showPrereqModal('${cleanCode}')"` : '';
+            let cursorStyle = !isPlaceholder ? 'cursor:pointer;' : 'cursor:default;';
+
             pillsHtml += `
-              <div class="flowchart-course-pill">
-                <div onclick="window.showPrereqModal('${c.code}')" style="flex:1; cursor:pointer;">
-                  <div class="fc-code">${c.code} (${c.credits} Cr)</div>
+              <div class="flowchart-course-pill ${isPlaceholder ? 'fc-placeholder-pill' : ''}">
+                <div ${clickAction} style="flex:1; ${cursorStyle}">
+                  <div class="fc-code">${codeDisplay} <span style="color:var(--accent-2); font-weight:600;">(${c.credits} Cr)</span></div>
                   <div class="fc-title">${c.title}</div>
                 </div>
                 <div style="display:flex; align-items:center; gap:6px;">
-                  ${c.prereq && c.prereq !== 'None' ? `<span class="fc-prereq">Pre: ${c.prereq}</span>` : ''}
-                  <button class="tbl-act-btn add-gpa-act-btn" title="Add to GPA Calculator" onclick="event.stopPropagation(); window.addCourseToGpaCalculator('${c.code}', '${c.credits}', '${safeTitle}')">➕ GPA</button>
+                  ${c.prereq && c.prereq !== 'None' ? `<span class="fc-prereq" title="Prerequisite">Pre: ${c.prereq}</span>` : ''}
+                  ${actionBtnHtml}
                 </div>
               </div>
             `;
           });
         } else {
-          pillsHtml = `<div style="font-size:0.8rem; color:var(--text-muted); font-style:italic;">Elective / Major Track Courses</div>`;
+          pillsHtml = `<div style="font-size:0.8rem; color:var(--text-muted); font-style:italic; padding:8px;">No matching courses for this semester.</div>`;
         }
 
         semRowsHtml += `
           <div class="flowchart-sem-card">
-            <div class="flowchart-sem-head">${sName}</div>
+            <div class="flowchart-sem-head" style="display:flex; justify-space-between; align-items:center;">
+              <span>${sName}</span>
+              <span class="curr-credits-tag" style="font-size:0.75rem;">${semCreditTotal > 0 ? semCreditTotal + ' Cr' : ''}</span>
+            </div>
             <div style="display:flex; flex-direction:column; gap:8px;">
               ${pillsHtml}
             </div>
@@ -432,7 +472,10 @@
       });
 
       yearBlock.innerHTML = `
-        <div class="flowchart-year-title">${yName}</div>
+        <div class="flowchart-year-title" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>${yName} Flowchart Sequence</span>
+          <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary); background:var(--neu-base); padding:4px 12px; border-radius:12px; border:1px solid rgba(6, 214, 208, 0.3);">Year Total: ${yearCreditTotal > 0 ? yearCreditTotal : 35} Credits</span>
+        </div>
         <div class="flowchart-semesters-row">
           ${semRowsHtml}
         </div>

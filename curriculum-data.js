@@ -2,6 +2,60 @@
 const CSE_CURRICULUM_DATA = {
   name: "B.Sc. in Computer Science & Engineering (CSE)",
   totalCredits: 148.5,
+  flowchart: [
+    { year: 1, semester: 1, code: "CSE103", title: "Structured Programming", credits: "4.5", prereq: "None", category: "Core Computer Science & Engineering" },
+    { year: 1, semester: 1, code: "ENG101", title: "Basic English", credits: "3", prereq: "None", category: "Compulsory General Education" },
+    { year: 1, semester: 1, code: "MAT101", title: "Differential and Integral Calculus", credits: "3", prereq: "None", category: "Core Mathematics & Statistics" },
+
+    { year: 1, semester: 2, code: "CHE109", title: "Engineering Chemistry", credits: "4", prereq: "None", category: "Core Natural Science" },
+    { year: 1, semester: 2, code: "CSE106", title: "Discrete Mathematics", credits: "3", prereq: "MAT101", category: "Core Computer Science & Engineering" },
+    { year: 1, semester: 2, code: "ENG102", title: "Composition and Communication Skills", credits: "3", prereq: "ENG101", category: "Compulsory General Education" },
+    { year: 1, semester: 2, code: "MAT102", title: "Differential Equations and Special Functions", credits: "3", prereq: "MAT101", category: "Core Mathematics & Statistics" },
+
+    { year: 1, semester: 3, code: "CSE110", title: "Object Oriented Programming", credits: "4.5", prereq: "CSE103", category: "Core Computer Science & Engineering" },
+    { year: 1, semester: 3, code: "MAT104", title: "Coordinate Geometry and Vector Analysis", credits: "3", prereq: "MAT101", category: "Core Mathematics & Statistics" },
+    { year: 1, semester: 3, code: "PHY109", title: "Engineering Physics-I", credits: "4", prereq: "MAT102", category: "Core Natural Science" },
+
+    { year: 2, semester: 1, code: "CSE200", title: "Computer-Aided Engineering Drawing", credits: "1", prereq: "None", category: "Core Computer Science & Engineering" },
+    { year: 2, semester: 1, code: "CSE209", title: "Electrical Circuits", credits: "4", prereq: "PHY109", category: "Core Computer Science & Engineering" },
+    { year: 2, semester: 1, code: "GEN226", title: "Emergence of Bangladesh", credits: "3", prereq: "ENG102", category: "Compulsory General Education" },
+    { year: 2, semester: 1, code: "STA102", title: "Statistics and Probability", credits: "3", prereq: "MAT101", category: "Core Mathematics & Statistics" },
+
+    { year: 2, semester: 2, code: "GE-I", title: "Elective General Education-I", credits: "3", prereq: "None", category: "Elective General Education" },
+    { year: 2, semester: 2, code: "MAT205", title: "Linear Algebra and Complex Variables", credits: "3", prereq: "MAT102", category: "Core Mathematics & Statistics" },
+    { year: 2, semester: 2, code: "CSE207", title: "Data Structures", credits: "4", prereq: "CSE110", category: "Core Computer Science & Engineering" },
+    { year: 2, semester: 2, code: "CSE251", title: "Electronic Circuits", credits: "4", prereq: "CSE209", category: "Core Computer Science & Engineering" },
+
+    { year: 2, semester: 3, code: "GE-II", title: "Elective General Education-II", credits: "3", prereq: "None", category: "Elective General Education" },
+    { year: 2, semester: 3, code: "PHY209", title: "Engineering Physics-II", credits: "3", prereq: "MAT205", category: "Core Natural Science" },
+    { year: 2, semester: 3, code: "CSE325", title: "Operating Systems", credits: "4", prereq: "CSE207", category: "Core Computer Science & Engineering" },
+
+    { year: 3, semester: 1, code: "GE-III", title: "Elective General Education-III", credits: "3", prereq: "None", category: "Elective General Education" },
+    { year: 3, semester: 1, code: "CSE246", title: "Algorithms", credits: "4.5", prereq: "CSE207, CSE106", category: "Core Computer Science & Engineering" },
+    { year: 3, semester: 1, code: "CSE302", title: "Database Systems", credits: "4.5", prereq: "CSE207", category: "Core Computer Science & Engineering" },
+
+    { year: 3, semester: 2, code: "CSE345", title: "Digital Logic Design", credits: "4", prereq: "CSE251", category: "Core Computer Science & Engineering" },
+    { year: 3, semester: 2, code: "CSE347", title: "Information System Analysis and Design", credits: "4", prereq: "CSE302", category: "Core Computer Science & Engineering" },
+    { year: 3, semester: 2, code: "MJR-I", title: "Compulsory Major-I", credits: "4", prereq: "Varies by Track", category: "Major Area Requirements" },
+
+    { year: 3, semester: 3, code: "CSE360", title: "Computer Architecture", credits: "3", prereq: "CSE345", category: "Core Computer Science & Engineering" },
+    { year: 3, semester: 3, code: "CSE405", title: "Computer Networks", credits: "4", prereq: "CSE207, CSE209", category: "Core Computer Science & Engineering" },
+    { year: 3, semester: 3, code: "MJR-II", title: "Compulsory Major-II", credits: "4", prereq: "Varies by Track", category: "Major Area Requirements" },
+
+    { year: 4, semester: 1, code: "CSE400-I", title: "Capstone Project-I", credits: "1", prereq: "100+ Credits", category: "Core Capstone Project" },
+    { year: 4, semester: 1, code: "CSE407", title: "Green Computing", credits: "3", prereq: "Senior Standing", category: "Core Computer Science & Engineering" },
+    { year: 4, semester: 1, code: "ELC-MJR-I", title: "Elective Major-I", credits: "4", prereq: "Varies by Track", category: "Major Area Requirements" },
+    { year: 4, semester: 1, code: "ELC-NON-I", title: "Elective Non-Major-I", credits: "4", prereq: "Varies", category: "Non-Major Area Electives" },
+
+    { year: 4, semester: 2, code: "CSE400-II", title: "Capstone Project-II", credits: "2", prereq: "CSE400-I", category: "Core Capstone Project" },
+    { year: 4, semester: 2, code: "CSE487", title: "Cyber Security, Ethics and Law", credits: "3", prereq: "CSE405", category: "Core Computer Science & Engineering" },
+    { year: 4, semester: 2, code: "ELC-MJR-II", title: "Elective Major-II", credits: "4", prereq: "Varies by Track", category: "Major Area Requirements" },
+    { year: 4, semester: 2, code: "ELC-NON-II", title: "Elective Non-Major-II", credits: "4", prereq: "Varies", category: "Non-Major Area Electives" },
+
+    { year: 4, semester: 3, code: "CSE400-III", title: "Capstone Project-III", credits: "3", prereq: "CSE400-II", category: "Core Capstone Project" },
+    { year: 4, semester: 3, code: "CSE495", title: "IT Project Management and Entrepreneurship", credits: "3", prereq: "Senior Standing", category: "Core Computer Science & Engineering" },
+    { year: 4, semester: 3, code: "ELC-MJR-III", title: "Elective Major-III", credits: "4", prereq: "Varies by Track", category: "Major Area Requirements" }
+  ],
   categories: [
     { name: "Compulsory General Education", credits: 9 },
     { name: "Elective General Education", credits: 9 },

@@ -1736,6 +1736,15 @@ button.btn-remove:hover {
   transform: translateY(-2px);
 }
 
+.fc-placeholder-pill {
+  opacity: 0.85;
+  border-left: 3px solid var(--accent-2);
+}
+
+.fc-placeholder-pill:hover {
+  transform: none;
+}
+
 .fc-code {
   font-weight: 700;
   font-family: var(--font-head);

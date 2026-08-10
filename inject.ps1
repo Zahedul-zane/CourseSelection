@@ -17,14 +17,14 @@ $html = @"
     }
     
     var wb = XLSX.read(bytes.buffer, {type:'array'});
-    var wsname = wb.SheetNames[0];
-    var ws = wb.Sheets[wsname];
-    var json = XLSX.utils.sheet_to_json(ws);
-    
     let result = [];
-    for(let row of json) {
-      result.push(row);
-    }
+    wb.SheetNames.forEach(function(wsname) {
+        var ws = wb.Sheets[wsname];
+        var json = XLSX.utils.sheet_to_json(ws);
+        for(let row of json) {
+          result.push(row);
+        }
+    });
     document.getElementById('out').innerText = JSON.stringify(result);
 </script>
 </body>
