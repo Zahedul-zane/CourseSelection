@@ -72,7 +72,7 @@ const ThemeManager = (() => {
   let interactionTriggered = false;
 
   function burst(cx, cy) {
-    const colors = ['#7c3aed', '#a78bfa', '#c084fc', '#f0abfc', '#2dd4bf', '#fbbf24'];
+    const colors = ['#2563eb', '#3b82f6', '#60a5fa', '#0284c7', '#0d9488', '#f59e0b'];
     const COUNT = 12;
     
     for (let i = 0; i < COUNT; i++) {
@@ -216,9 +216,12 @@ const ThemeManager = (() => {
 (function initGpaCalculator() {
   const gpaRowsContainer = document.getElementById('gpaRows');
   const addRowBtn        = document.getElementById('addGpaRow');
+  const importBtn        = document.getElementById('importSelectedGpaBtn');
+  const resetBtn         = document.getElementById('resetGpaBtn');
   const semesterGpaEl    = document.getElementById('semesterGpa');
   const totalCreditsEl   = document.getElementById('totalCredits');
   const finalGpaEl       = document.getElementById('finalGpa');
+  const standingEl       = document.getElementById('academicStanding');
   const reportBtn        = document.getElementById('generateGpaReportBtn');
   
   const prevCgpaInput    = document.getElementById('prevCgpa');
@@ -227,10 +230,16 @@ const ThemeManager = (() => {
   if (!gpaRowsContainer || !addRowBtn) return;
 
   const GRADE_SCALE = {
-    'A+': 4.0, 'A': 4.0, 'A-': 3.7,
-    'B+': 3.3, 'B': 3.0, 'B-': 2.7,
-    'C+': 2.3, 'C': 2.0, 'C-': 1.7,
-    'D+': 1.3, 'D': 1.0, 'F': 0.0
+    'A+': 4.00,
+    'A':  3.75,
+    'A-': 3.50,
+    'B+': 3.25,
+    'B':  3.00,
+    'B-': 2.75,
+    'C+': 2.50,
+    'C':  2.25,
+    'D':  2.00,
+    'F':  0.00
   };
 
   // Helper to extract numeric credits (e.g. "3+1=4" -> 4, "3" -> 3)
@@ -309,24 +318,72 @@ const ThemeManager = (() => {
     }, 4000);
   }
 
-  function createRow(initialName = '', initialCredits = '', initialGrade = 'A') {
+  // Academic Standing calculation for EWU
+  function updateAcademicStanding(cgpa, totalCredits) {
+    if (!standingEl) return;
+    standingEl.className = 'academic-standing-badge';
+
+    if (totalCredits === 0) {
+      standingEl.textContent = 'No Graded Courses';
+      standingEl.classList.add('standing-neutral');
+      return;
+    }
+
+    if (cgpa >= 3.75) {
+      standingEl.textContent = '⭐ First Class with Distinction';
+      standingEl.classList.add('standing-distinction');
+    } else if (cgpa >= 3.00) {
+      standingEl.textContent = '🎯 First Class';
+      standingEl.classList.add('standing-first');
+    } else if (cgpa >= 2.50) {
+      standingEl.textContent = '📈 Second Class';
+      standingEl.classList.add('standing-second');
+    } else if (cgpa >= 2.00) {
+      standingEl.textContent = '✔️ Passing / Good Standing';
+      standingEl.classList.add('standing-pass');
+    } else {
+      standingEl.textContent = '⚠️ Academic Probation (< 2.00)';
+      standingEl.classList.add('standing-probation');
+    }
+  }
+
+  function createRow(initialName = '', initialCredits = 3, initialGrade = 'A') {
     const row = document.createElement('div');
     row.className = 'gpa-row-entry';
     row.innerHTML = `
       <div class="gpa-name-wrap">
-        <input type="text" placeholder="e.g. CSE103 or Physics" class="gpa-name" value="${initialName}" autocomplete="off">
+        <input type="text" placeholder="e.g. CSE103 or English" class="gpa-name" value="${initialName}" autocomplete="off">
         <div class="gpa-autocomplete-dropdown" style="display:none;"></div>
       </div>
-      <input type="number" step="0.5" min="0" placeholder="3.0" class="gpa-credits" value="${initialCredits}">
+      <input type="number" step="0.5" min="0" max="6" placeholder="3.0" class="gpa-credits" value="${initialCredits}">
       <select class="gpa-grade">
-        ${Object.keys(GRADE_SCALE).map(g => `<option value="${g}" ${g === initialGrade ? 'selected' : ''}>${g}</option>`).join('')}
+        ${Object.keys(GRADE_SCALE).map(g => `<option value="${g}" ${g === initialGrade ? 'selected' : ''}>${g} (${GRADE_SCALE[g].toFixed(2)})</option>`).join('')}
       </select>
       <button class="remove-row-btn" title="Remove Course">&times;</button>
+      
+      <div class="gpa-row-sub">
+        <label class="gpa-retake-label">
+          <input type="checkbox" class="gpa-retake-check"> Retake Course
+        </label>
+        <div class="gpa-prev-grade-wrap" style="display:none;">
+          <span>Previous Grade:</span>
+          <select class="gpa-prev-grade">
+            ${Object.keys(GRADE_SCALE).map(g => `<option value="${g}" ${g === 'D' ? 'selected' : ''}>${g} (${GRADE_SCALE[g].toFixed(2)})</option>`).join('')}
+          </select>
+        </div>
+      </div>
     `;
 
     const nameInput = row.querySelector('.gpa-name');
     const creditsInput = row.querySelector('.gpa-credits');
     const dropdown = row.querySelector('.gpa-autocomplete-dropdown');
+    const retakeCheck = row.querySelector('.gpa-retake-check');
+    const prevGradeWrap = row.querySelector('.gpa-prev-grade-wrap');
+
+    retakeCheck.addEventListener('change', () => {
+      prevGradeWrap.style.display = retakeCheck.checked ? 'inline-flex' : 'none';
+      calculateGPA();
+    });
 
     // Autocomplete & Auto-Fill handler
     function handleAutocomplete() {
@@ -397,6 +454,9 @@ const ThemeManager = (() => {
       row.style.transform = 'translateX(20px)';
       setTimeout(() => {
         row.remove();
+        if (gpaRowsContainer.querySelectorAll('.gpa-row-entry').length === 0) {
+          createRow('', 3, 'A');
+        }
         calculateGPA();
       }, 200);
     };
@@ -416,33 +476,59 @@ const ThemeManager = (() => {
     const rows = gpaRowsContainer.querySelectorAll('.gpa-row-entry');
     let semCredits = 0;
     let semPoints = 0;
+    let cumCreditsAdded = 0;
+    let cumPointsAdded = 0;
 
     rows.forEach(row => {
-      const credits = parseFloat(row.querySelector('.gpa-credits').value) || 0;
+      const credits = Math.max(0, parseFloat(row.querySelector('.gpa-credits').value) || 0);
       const grade = row.querySelector('.gpa-grade').value;
-      const points = GRADE_SCALE[grade] || 0;
+      const currentPoints = GRADE_SCALE[grade] !== undefined ? GRADE_SCALE[grade] : 0;
+      
+      const isRetake = row.querySelector('.gpa-retake-check') && row.querySelector('.gpa-retake-check').checked;
+      const prevGrade = row.querySelector('.gpa-prev-grade') ? row.querySelector('.gpa-prev-grade').value : 'D';
+      const prevPoints = GRADE_SCALE[prevGrade] !== undefined ? GRADE_SCALE[prevGrade] : 0;
 
       if (credits > 0) {
         semCredits += credits;
-        semPoints += (credits * points);
+        semPoints += (credits * currentPoints);
+
+        if (isRetake) {
+          // In EWU retake, grade delta updates cumulative points without duplicating degree credits
+          cumPointsAdded += credits * (currentPoints - prevPoints);
+        } else {
+          cumCreditsAdded += credits;
+          cumPointsAdded += (credits * currentPoints);
+        }
       }
     });
 
+    // Semester GPA
     const semGpa = semCredits > 0 ? (semPoints / semCredits) : 0;
     semesterGpaEl.textContent = semGpa.toFixed(2);
 
-    // Cumulative Logic
-    const prevCgpa = parseFloat(prevCgpaInput.value) || 0;
-    const prevCredits = parseFloat(prevCreditsInput.value) || 0;
+    // Cumulative CGPA
+    const prevCgpa = Math.min(4.00, Math.max(0, parseFloat(prevCgpaInput.value) || 0));
+    const prevCredits = Math.max(0, parseFloat(prevCreditsInput.value) || 0);
 
-    const totalCredits = prevCredits + semCredits;
-    const totalPoints = (prevCgpa * prevCredits) + semPoints;
-    const finalCgpa = totalCredits > 0 ? (totalPoints / totalCredits) : 0;
+    const totalCumCredits = prevCredits + cumCreditsAdded;
+    const prevTotalPoints = prevCgpa * prevCredits;
+    const totalCumPoints = prevTotalPoints + cumPointsAdded;
 
-    totalCreditsEl.textContent = totalCredits.toFixed(1);
+    let finalCgpa = 0;
+    if (totalCumCredits > 0) {
+      finalCgpa = totalCumPoints / totalCumCredits;
+    } else if (semCredits > 0) {
+      finalCgpa = semGpa;
+    }
+
+    finalCgpa = Math.min(4.00, Math.max(0.00, finalCgpa));
+
+    totalCreditsEl.textContent = totalCumCredits.toFixed(1);
     finalGpaEl.textContent = finalCgpa.toFixed(2);
     
-    // Animate the values if they change
+    updateAcademicStanding(finalCgpa, totalCumCredits || semCredits);
+
+    // Animate the values on update
     [semesterGpaEl, finalGpaEl].forEach(el => {
       el.classList.remove('pulse-glow');
       void el.offsetWidth; // trigger reflow
@@ -471,7 +557,7 @@ const ThemeManager = (() => {
       targetRow.querySelector('.gpa-credits').value = numCredits;
       calculateGPA();
     } else {
-      createRow(displayName, numCredits);
+      createRow(displayName, numCredits, 'A');
     }
 
     showToast(`Added <strong>${code}</strong> (${numCredits} Cr) to GPA Calculator`, 'View GPA Tab', () => {
@@ -480,39 +566,101 @@ const ThemeManager = (() => {
     });
   };
 
-  addRowBtn.addEventListener('click', () => createRow());
+  addRowBtn.addEventListener('click', () => createRow('', 3, 'A'));
+  
+  if (importBtn) {
+    importBtn.addEventListener('click', () => {
+      if (typeof selected === 'undefined' || selected.length === 0) {
+        showToast("No courses selected in Search tab yet!", "Go to Search", () => {
+          const searchTabBtn = document.querySelector('.tab-btn[data-tab="search"]');
+          if (searchTabBtn) searchTabBtn.click();
+        });
+        return;
+      }
+
+      // Group selected courses by course code
+      const selectedGroups = new Map();
+      selected.forEach(c => {
+        const key = c.split(" [")[0];
+        const code = key.split(" (")[0].trim().toUpperCase();
+        if (!selectedGroups.has(code)) {
+          selectedGroups.set(code, key);
+        }
+      });
+
+      gpaRowsContainer.innerHTML = '';
+      const allCourses = getMasterCourseList();
+      let count = 0;
+
+      selectedGroups.forEach((fullTitle, code) => {
+        const match = allCourses.find(c => c.code === code);
+        const creds = match ? match.credits : 3;
+        createRow(fullTitle, creds, 'A');
+        count++;
+      });
+
+      calculateGPA();
+      showToast(`Imported ${count} selected courses into GPA Calculator!`);
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      prevCgpaInput.value = '';
+      prevCreditsInput.value = '';
+      gpaRowsContainer.innerHTML = '';
+      createRow('', 3, 'A');
+      createRow('', 3, 'A');
+      createRow('', 3, 'A');
+      calculateGPA();
+      showToast("GPA Calculator reset to defaults.");
+    });
+  }
+
   [prevCgpaInput, prevCreditsInput].forEach(input => {
     input.addEventListener('input', calculateGPA);
+    input.addEventListener('change', calculateGPA);
   });
 
   reportBtn.addEventListener('click', () => {
     const rows = gpaRowsContainer.querySelectorAll('.gpa-row-entry');
-    let reportText = `🎓 CGPA ACADEMIC REPORT (Fall 2026 — EWU)\n`;
-    reportText += `Generated: ${new Date().toLocaleDateString()}\n`;
-    reportText += `====================================\n\n`;
+    let reportText = `🎓 EAST WEST UNIVERSITY — CGPA ACADEMIC REPORT\n`;
+    reportText += `Generated: ${new Date().toLocaleDateString()} | Semester: Fall 2026\n`;
+    reportText += `====================================================\n\n`;
     
-    reportText += `SUMMARY STATS:\n`;
-    reportText += `• Semester GPA: ${semesterGpaEl.textContent}\n`;
-    reportText += `• Overall CGPA: ${finalGpaEl.textContent}\n`;
-    reportText += `• Total Credits: ${totalCreditsEl.textContent}\n\n`;
+    reportText += `ACADEMIC SUMMARY:\n`;
+    reportText += `• Semester GPA:   ${semesterGpaEl.textContent}\n`;
+    reportText += `• Cumulative CGPA: ${finalGpaEl.textContent}\n`;
+    reportText += `• Total Credits:   ${totalCreditsEl.textContent}\n`;
+    if (standingEl) {
+      reportText += `• Academic Status: ${standingEl.textContent}\n`;
+    }
+    reportText += `\n`;
     
     if (rows.length > 0) {
-      reportText += `COURSE DETAILS:\n`;
+      reportText += `REGISTERED COURSES & GRADES:\n`;
       rows.forEach(row => {
-        const name = row.querySelector('.gpa-name').value || 'Unnamed Course';
-        const credits = row.querySelector('.gpa-credits').value || '0';
+        const name = row.querySelector('.gpa-name').value || 'Course';
+        const credits = row.querySelector('.gpa-credits').value || '3';
         const grade = row.querySelector('.gpa-grade').value;
-        reportText += `- ${name.padEnd(10)} | ${credits} Credits | Grade: ${grade}\n`;
+        const gradePoint = (GRADE_SCALE[grade] !== undefined) ? GRADE_SCALE[grade].toFixed(2) : '0.00';
+        const isRetake = row.querySelector('.gpa-retake-check') && row.querySelector('.gpa-retake-check').checked;
+        const retakeInfo = isRetake ? ` [Retake, Prev: ${row.querySelector('.gpa-prev-grade').value}]` : '';
+        reportText += `- ${name.padEnd(20)} | ${credits} Cr | Grade: ${grade} (${gradePoint})${retakeInfo}\n`;
       });
     }
 
+    reportText += `\nOfficial EWU Grading Policy: A+ (4.00), A (3.75), A- (3.50), B+ (3.25), B (3.00), B- (2.75), C+ (2.50), C (2.25), D (2.00), F (0.00)\n`;
+
     navigator.clipboard.writeText(reportText).then(() => {
       const originalText = reportBtn.textContent;
-      reportBtn.textContent = 'Report Copied!';
-      setTimeout(() => { reportBtn.textContent = originalText; }, 2000);
+      reportBtn.textContent = '✅ Report Copied!';
+      setTimeout(() => { reportBtn.textContent = originalText; }, 2500);
     });
   });
 
-  // Initial row
-  createRow();
+  // Initial 3 clean rows for quick calculation
+  createRow('', 3, 'A');
+  createRow('', 3, 'A');
+  createRow('', 3, 'A');
 })();

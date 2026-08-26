@@ -474,7 +474,7 @@
       yearBlock.innerHTML = `
         <div class="flowchart-year-title" style="display:flex; justify-content:space-between; align-items:center;">
           <span>${yName} Flowchart Sequence</span>
-          <span style="font-size:0.85rem; font-weight:600; color:var(--accent-primary); background:var(--neu-base); padding:4px 12px; border-radius:12px; border:1px solid rgba(6, 214, 208, 0.3);">Year Total: ${yearCreditTotal > 0 ? yearCreditTotal : 35} Credits</span>
+          <span style="font-size:0.85rem; font-weight:600; color:var(--accent-1); background:var(--neu-base); padding:4px 12px; border-radius:12px; border:1px solid rgba(37, 99, 235, 0.25);">Year Total: ${yearCreditTotal > 0 ? yearCreditTotal : 35} Credits</span>
         </div>
         <div class="flowchart-semesters-row">
           ${semRowsHtml}
