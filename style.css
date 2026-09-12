@@ -231,6 +231,7 @@ header {
   bottom: 24px;
   right: 28px;
   z-index: 100;
+  pointer-events: none;
   font-family: var(--font-head);
   font-size: 0.78rem;
   font-weight: 700;
@@ -632,125 +633,520 @@ button.btn-remove:hover {
 }
 
 /* ────────────────────────────────────────────
-   SCHEDULE
+   WEEKLY TIMETABLE MATRIX
 ──────────────────────────────────────────── */
-.schedule-container {
+.timetable-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
+  width: 100%;
 }
 
-.schedule-grid {
-  display: grid;
-  grid-template-columns: 120px repeat(6, 1fr);
-  gap: 6px;
-  background: var(--neu-surface-2);
-  padding: 20px;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--neu-shadow-in);
-  overflow-x: auto;
-  min-height: 600px;
+/* Header Bar matching reference */
+.timetable-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 4px 6px;
 }
 
-.schedule-time-header {
-  padding: 12px;
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 0.8rem;
-  text-align: center;
-  letter-spacing: 0.5px;
+.timetable-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.schedule-day-header {
-  padding: 12px;
-  text-align: center;
-  background: var(--neu-base);
-  color: var(--accent-1);
+.timetable-title {
   font-family: var(--font-head);
-  font-weight: 700;
-  font-size: 0.9rem;
-  border-radius: var(--radius-sm);
-  box-shadow:
-    4px 4px 8px var(--neu-dark),
-    -4px -4px 8px var(--neu-light);
-  letter-spacing: 0.5px;
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.5px;
 }
 
-.schedule-time-slot {
-  padding: 12px;
-  text-align: center;
-  font-size: 0.74rem;
+.timetable-icon {
+  font-size: 1.5rem;
+  display: inline-block;
+  transform: translateY(-1px);
+}
+
+.timetable-subtitle {
+  font-size: 0.88rem;
   color: var(--text-muted);
-  font-weight: 500;
+  font-weight: 400;
 }
 
-.schedule-cell {
-  position: relative;
-  min-height: 60px;
-  border-radius: var(--radius-sm);
+/* Legend items exactly matching reference image */
+.timetable-legend {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.legend-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  display: inline-block;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.legend-badge.enrolled {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.legend-badge.free {
+  border: 1.8px dashed #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.legend-badge.clash {
+  border: 1.8px solid #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.25);
+}
+
+/* Quick Matrix Stats & Controls Bar */
+.timetable-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  background: var(--neu-surface);
+  box-shadow: var(--neu-shadow-out);
+}
+
+.timetable-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tt-stat-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
   background: var(--neu-surface-2);
   box-shadow: var(--neu-shadow-in-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: var(--transition);
 }
 
-/* Schedule course chips */
-.schedule-course {
-  position: absolute;
-  top: 3px; left: 3px; right: 3px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  letter-spacing: 0.1px;
+.tt-stat-chip.highlight-chip {
+  background: rgba(16, 185, 129, 0.09);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-.schedule-course:nth-child(1) {
-  background: rgba(37, 99, 235, 0.12);
-  color: var(--accent-1);
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
-}
-.schedule-course:nth-child(2) {
-  background: rgba(13, 148, 136, 0.12);
-  color: var(--color-teal);
-  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.15);
-}
-.schedule-course:nth-child(3) {
-  background: rgba(217, 119, 6, 0.12);
-  color: var(--color-amber);
-  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.15);
-}
-.schedule-course:nth-child(4) {
-  background: rgba(225, 29, 72, 0.1);
-  color: var(--color-rose);
-  box-shadow: 0 2px 6px rgba(225, 29, 72, 0.12);
-}
-.schedule-course:nth-child(5) {
-  background: rgba(2, 132, 199, 0.1);
-  color: var(--color-sky);
-  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12);
-}
-.schedule-course:nth-child(6) {
-  background: rgba(101, 163, 13, 0.1);
-  color: var(--color-lime);
-  box-shadow: 0 2px 6px rgba(101, 163, 13, 0.12);
-}
-.schedule-course:nth-child(n+7) {
-  background: rgba(234, 88, 12, 0.1);
-  color: var(--color-orange);
-  box-shadow: 0 2px 6px rgba(234, 88, 12, 0.12);
+.tt-stat-chip.clash-active {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  animation: clashPulse 2s infinite;
 }
 
-.no-schedule {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-muted);
-  font-size: 1rem;
-  background: var(--neu-surface-2);
+@keyframes clashPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0); }
+  50% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+}
+
+.timetable-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.timetable-actions .unique-btn {
+  padding: 8px 16px;
+  font-size: 0.82rem;
+}
+
+/* Matrix Table Container */
+.timetable-matrix-container {
   border-radius: var(--radius-lg);
-  box-shadow: var(--neu-shadow-in);
-  font-style: italic;
+  padding: 22px;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-shadow-out);
+  position: relative;
+  overflow: hidden;
+}
+
+.timetable-matrix-scroll {
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--neu-dark) transparent;
+}
+
+.timetable-matrix-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.timetable-matrix-scroll::-webkit-scrollbar-track {
+  background: var(--neu-surface-2);
+  border-radius: 4px;
+}
+
+.timetable-matrix-scroll::-webkit-scrollbar-thumb {
+  background: var(--neu-dark);
+  border-radius: 4px;
+}
+
+/* 8-Column Grid matching reference image */
+.timetable-matrix-grid {
+  display: grid;
+  grid-template-columns: 165px repeat(7, minmax(135px, 1fr));
+  gap: 12px;
+  min-width: 1120px;
+}
+
+/* Column Header Cards (Top Row) */
+.tt-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 10px;
+  text-align: center;
+  border-radius: 14px;
+  background: var(--neu-surface);
+  box-shadow:
+    3px 3px 8px var(--neu-dark),
+    -3px -3px 8px var(--neu-light);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.94rem;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+  user-select: none;
+  transition: var(--transition);
+}
+
+.tt-col-header.corner-header {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+.tt-col-header.today-header {
+  border: 1.5px solid var(--accent-2);
+  color: var(--accent-1);
+  position: relative;
+}
+
+.tt-col-header.today-header::after {
+  content: "Today";
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  font-size: 0.65rem;
+  background: var(--accent-2);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+/* Row Time Period Header Cells (First Column) */
+.tt-time-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 10px;
+  border-radius: 14px;
+  background: var(--neu-surface);
+  box-shadow:
+    3px 3px 8px var(--neu-dark),
+    -3px -3px 8px var(--neu-light);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+  min-height: 84px;
+  letter-spacing: 0.2px;
+  user-select: none;
+}
+
+/* Matrix Slot Cells (Free, Enrolled, Clash) */
+.tt-slot-cell {
+  min-height: 84px;
+  border-radius: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 1. Free Slot */
+.tt-slot-cell.slot-free {
+  align-items: center;
+  justify-content: center;
+  border: 1.6px dashed rgba(185, 200, 220, 0.75);
+  background: rgba(255, 255, 255, 0.4);
+  color: #94a3b8;
+  font-size: 0.88rem;
+  font-weight: 500;
+  user-select: none;
+  cursor: default;
+}
+
+.tt-slot-cell.slot-free:hover {
+  border-color: rgba(16, 185, 129, 0.55);
+  background: rgba(16, 185, 129, 0.04);
+  color: #059669;
+  transform: translateY(-1px);
+}
+
+/* 2. Enrolled Slot Card */
+.tt-slot-cell.slot-enrolled {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #3b82f6 100%);
+  color: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  justify-content: space-between;
+  padding: 10px;
+  cursor: pointer;
+  animation: slotPopIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slotPopIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.tt-slot-cell.slot-enrolled:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.48);
+}
+
+.tt-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.tt-course-code {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.tt-drop-btn {
+  display: none !important;
+}
+
+.tt-card-body {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0;
+  flex-wrap: wrap;
+}
+
+.tt-sec-badge {
+  background: rgba(255, 255, 255, 0.22);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(4px);
+}
+
+.tt-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  font-size: 0.74rem;
+  opacity: 0.95;
+}
+
+.tt-faculty-badge {
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.4px;
+  font-size: 0.74rem;
+}
+
+.tt-exact-time {
+  display: none !important;
+}
+
+/* 3. Time Clash Slot */
+.tt-slot-cell.slot-clash {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(185, 28, 28, 0.18));
+  border: 2px solid #ef4444;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.28);
+  padding: 8px;
+  gap: 6px;
+  justify-content: flex-start;
+  animation: clashGlow 2s infinite;
+}
+
+@keyframes clashGlow {
+  0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.45); }
+}
+
+.tt-clash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #dc2626;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+
+.tt-clash-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+.tt-clash-item {
+  background: rgba(255, 255, 255, 0.95);
+  border-left: 3px solid #ef4444;
+  border-radius: 6px;
+  padding: 5px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: #1e293b;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.tt-clash-course {
+  font-weight: 700;
+  color: #b91c1c;
+}
+
+.tt-clash-drop {
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0 4px;
+  transition: var(--transition);
+}
+
+.tt-clash-drop:hover {
+  transform: scale(1.2);
+  color: #991b1b;
+}
+
+/* Hint Banner */
+.timetable-hint-banner {
+  text-align: center;
+  padding: 12px 20px;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  background: var(--neu-surface-2);
+  border-radius: var(--radius-md);
+  box-shadow: var(--neu-shadow-in-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Clean Print Optimization */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .glow-bg, header, .tabs, .semester-badge,
+  .timetable-toolbar, .timetable-hint-banner,
+  .tt-drop-btn, .tt-clash-drop,
+  #search-tab, #gpa-tab, #finding-courses-tab {
+    display: none !important;
+  }
+  main.container {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  .timetable-wrapper {
+    gap: 10px !important;
+  }
+  .timetable-header-bar {
+    border-bottom: 2px solid #000;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+  .timetable-matrix-container {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    padding: 10px !important;
+  }
+  .timetable-matrix-grid {
+    min-width: 100% !important;
+    gap: 6px !important;
+  }
+  .tt-col-header, .tt-time-cell {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    background: #f8fafc !important;
+    color: #000 !important;
+  }
+  .tt-slot-cell.slot-free {
+    border: 1px dashed #bbb !important;
+    background: #fff !important;
+  }
+  .tt-slot-cell.slot-enrolled {
+    background: #2563eb !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color: #fff !important;
+  }
 }
 
 /* ────────────────────────────────────────────

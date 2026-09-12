@@ -3419,8 +3419,8 @@ function renderCourses(searchTerm = "") {
             }
           }
           if (clashCourse) {
-            alert(`Time clash detected between:\n- ${section.key}\n- ${clashCourse}`);
-            return;
+            const allowClash = confirm(`⚠️ Time clash detected between:\n• ${section.key}\n• ${clashCourse}\n\nDo you want to add it anyway to visualize the clash on your Weekly Timetable Matrix?`);
+            if (!allowClash) return;
           }
           
           selected.push(...section.parts);
@@ -3524,147 +3524,365 @@ if (searchInput) {
 
 renderCourses();
 
-// Schedule Generation Functions
+// ═══════════════════════════════════════════════════════════
+// WEEKLY TIMETABLE MATRIX SYSTEM
+// ═══════════════════════════════════════════════════════════
+
+const STANDARD_TIMETABLE_SLOTS = [
+  { label: "08:30 AM – 10:00 AM", start: 510, end: 600 },
+  { label: "10:10 AM – 11:40 AM", start: 610, end: 700 },
+  { label: "11:50 AM – 01:20 PM", start: 710, end: 800 },
+  { label: "01:30 PM – 03:00 PM", start: 810, end: 900 },
+  { label: "03:10 PM – 04:40 PM", start: 910, end: 1000 },
+  { label: "04:50 PM – 06:20 PM", start: 1010, end: 1100 }
+];
+
+const TIMETABLE_DAYS = [
+  { name: "Sunday", code: "S" },
+  { name: "Monday", code: "M" },
+  { name: "Tuesday", code: "T" },
+  { name: "Wednesday", code: "W" },
+  { name: "Thursday", code: "R" },
+  { name: "Friday", code: "F" },
+  { name: "Saturday", code: "A" }
+];
+
 function getDayIndex(dayLetter) {
   const dayMap = { 'S': 0, 'M': 1, 'T': 2, 'W': 3, 'R': 4, 'F': 5, 'A': 6 };
   return dayMap[dayLetter] !== undefined ? dayMap[dayLetter] : -1;
 }
 
 function extractDays(courseStr) {
-  const match = courseStr.match(/\[([A-Z]+)\s+/);
+  const match = courseStr.match(/\[([A-Za-z]+)\s+/);
   if (!match) return [];
-  const dayString = match[1];
+  const dayString = match[1].toUpperCase();
+  if (dayString === "TBA") return [];
+  const dayMap = { 'S': 0, 'M': 1, 'T': 2, 'W': 3, 'R': 4, 'F': 5, 'A': 6 };
   const days = [];
   for (let i = 0; i < dayString.length; i++) {
-    const idx = getDayIndex(dayString[i]);
-    if (idx !== -1) days.push(idx);
+    const char = dayString[i];
+    if (dayMap[char] !== undefined && !days.includes(dayMap[char])) {
+      days.push(dayMap[char]);
+    }
   }
   return days;
 }
 
-function getTimeSlotIndex(timeStr) {
-  const [time, period] = timeStr.split(" ");
-  let [hours, mins] = time.split(":").map(Number);
-  if (period === "PM" && hours !== 12) hours += 12;
-  if (period === "AM" && hours === 12) hours = 0;
-  const totalMins = hours * 60 + mins;
-  return Math.round(totalMins / 30);
+function extractTiming(courseStr) {
+  const match = courseStr.match(/\[([A-Za-z]+)\s+(\d{1,2}:\d{2}\s+[AP]M)\s+-\s+(\d{1,2}:\d{2}\s+[AP]M)\]/);
+  if (!match) return null;
+  return {
+    dayStr: match[1],
+    startTimeStr: match[2],
+    endTimeStr: match[3],
+    startMin: parseTime(match[2]),
+    endMin: parseTime(match[3])
+  };
 }
+
+function timeRangesOverlap(start1, end1, start2, end2) {
+  return Math.max(start1, start2) < Math.min(end1, end2);
+}
+
+// Global drop function for matrix card buttons
+window.dropSectionByKey = function(sectionKey) {
+  selected = selected.filter(c => getSectionKey(c) !== sectionKey);
+  const searchEl = document.getElementById("searchInput");
+  if (searchEl) {
+    renderCourses(searchEl.value);
+  } else {
+    renderCourses();
+  }
+  renderSelected();
+  renderSchedule();
+};
 
 function renderSchedule() {
   const grid = document.getElementById("scheduleGrid");
-  const noMsg = document.getElementById("noScheduleMsg");
-  
-  if (selected.length === 0) {
-    grid.style.display = "none";
-    noMsg.style.display = "block";
-    return;
-  }
-  
-  noMsg.style.display = "none";
+  if (!grid) return;
+
+  // Clear previous grid
   grid.innerHTML = "";
-  
-  grid.style.display = "grid";
-  grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(280px, 1fr))";
-  grid.style.gap = "20px";
-  grid.style.background = "transparent";
-  grid.style.border = "none";
-  grid.style.boxShadow = "none";
-  grid.style.padding = "0";
-  grid.style.minHeight = "auto";
-  
-  const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  const dayMap = new Map();
-  for (let i = 0; i < 7; i++) dayMap.set(i, []);
-  
+
+  // Check if any enrolled courses require extended / non-standard slots
+  const activeSlots = [...STANDARD_TIMETABLE_SLOTS];
   selected.forEach(course => {
-    const days = extractDays(course);
-    const timeMatch = course.match(/\[([A-Z]+)\s+(.*?)\]/);
-    if (!timeMatch) return;
-    const timeString = timeMatch[2]; // e.g., "11:50 AM - 01:20 PM"
-    
-    // Sort by start slot for ordering within the day
-    const timeOnlyMatch = course.match(/(\d{1,2}:\d{2}\s+[AP]M)/);
-    let startSlot = 0;
-    if (timeOnlyMatch) startSlot = getTimeSlotIndex(timeOnlyMatch[1]);
-
-    const courseName = course.split(" - ")[0]; // "ACT101 (Sec 1)"
-
-    days.forEach(day => {
-      dayMap.get(day).push({ courseName, timeString, startSlot, fullCourse: course });
-    });
+    const timing = extractTiming(course);
+    if (!timing) return;
+    const overlapsStandard = STANDARD_TIMETABLE_SLOTS.some(slot =>
+      timeRangesOverlap(timing.startMin, timing.endMin, slot.start, slot.end)
+    );
+    if (!overlapsStandard) {
+      const alreadyAdded = activeSlots.some(s => s.start === timing.startMin && s.end === timing.endMin);
+      if (!alreadyAdded) {
+        activeSlots.push({
+          label: `${timing.startTimeStr} – ${timing.endTimeStr}`,
+          start: timing.startMin,
+          end: timing.endMin
+        });
+      }
+    }
   });
 
-  const colors = [
-    "var(--neon-cyan)",
-    "var(--neon-purple)",
-    "var(--neon-green)",
-    "#f72585",
-    "#f8961e",
-    "#43aa8b",
-    "#e0e7ff"
-  ];
-  let colorIdx = 0;
-  const courseColors = new Map();
+  // Sort slots by start time
+  activeSlots.sort((a, b) => a.start - b.start);
 
-  for (let day = 0; day < 7; day++) {
-    const classesToday = dayMap.get(day);
-    if (classesToday.length === 0) continue;
-    
-    // Sort classes by time
-    classesToday.sort((a, b) => a.startSlot - b.startSlot);
+  // Today's day index (0 = Sun, 1 = Mon, ..., 6 = Sat)
+  const todayIdx = new Date().getDay();
 
-    const dayCard = document.createElement("div");
-    dayCard.className = "glass-panel";
-    dayCard.style.padding = "20px";
-    dayCard.style.borderRadius = "16px";
-    dayCard.style.background = "rgba(255, 255, 255, 0.03)";
-    
-    const dayHeader = document.createElement("h3");
-    dayHeader.textContent = dayNames[day];
-    dayHeader.style.borderBottom = "1px solid rgba(6, 214, 208, 0.2)";
-    dayHeader.style.paddingBottom = "10px";
-    dayHeader.style.marginBottom = "15px";
-    dayHeader.style.color = "var(--text-main)";
-    dayCard.appendChild(dayHeader);
+  // 1. Render Top Header Row (Column 0: Time Period, Columns 1..7: Sunday..Saturday)
+  const cornerHeader = document.createElement("div");
+  cornerHeader.className = "tt-col-header corner-header";
+  cornerHeader.textContent = "Time Period";
+  grid.appendChild(cornerHeader);
 
-    classesToday.forEach(cls => {
-      if (!courseColors.has(cls.courseName)) {
-        courseColors.set(cls.courseName, colors[colorIdx % colors.length]);
-        colorIdx++;
+  TIMETABLE_DAYS.forEach((dayObj, dayIdx) => {
+    const dayHeader = document.createElement("div");
+    dayHeader.className = "tt-col-header";
+    if (dayIdx === todayIdx) {
+      dayHeader.classList.add("today-header");
+    }
+    dayHeader.textContent = dayObj.name;
+    grid.appendChild(dayHeader);
+  });
+
+  // Track clashes, busy days, and total minutes for stats toolbar
+  let totalClashSlots = 0;
+  const daysWithClasses = new Set();
+  let totalMinutes = 0;
+
+  // 2. Render Each Row (Time Period Header + 7 Day Cells)
+  activeSlots.forEach(slot => {
+    // Time Period Label (Column 0)
+    const timeCell = document.createElement("div");
+    timeCell.className = "tt-time-cell";
+    timeCell.textContent = slot.label;
+    grid.appendChild(timeCell);
+
+    // 7 Day Cells (Columns 1 to 7)
+    for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+      const matchingCourses = [];
+      const seenSectionKeys = new Set();
+
+      selected.forEach(courseStr => {
+        const days = extractDays(courseStr);
+        if (!days.includes(dayIdx)) return;
+
+        const timing = extractTiming(courseStr);
+        if (!timing) return;
+
+        if (timeRangesOverlap(timing.startMin, timing.endMin, slot.start, slot.end)) {
+          const secKey = getSectionKey(courseStr);
+          if (!seenSectionKeys.has(secKey)) {
+            seenSectionKeys.add(secKey);
+            const codeMatch = courseStr.match(/^([A-Za-z0-9]+)/);
+            const secMatch = courseStr.match(/\((Sec\s+\d+)\)/);
+            const facMatch = courseStr.match(/- ([A-Za-z0-9]+)\s*\[/);
+
+            matchingCourses.push({
+              fullString: courseStr,
+              sectionKey: secKey,
+              courseCode: codeMatch ? codeMatch[1] : "COURSE",
+              section: secMatch ? secMatch[1] : "",
+              faculty: facMatch ? facMatch[1] : "TBA",
+              timingStr: `${timing.startTimeStr} - ${timing.endTimeStr}`,
+              durationMin: Math.max(0, timing.endMin - timing.startMin)
+            });
+
+            daysWithClasses.add(dayIdx);
+          }
+        }
+      });
+
+      const cell = document.createElement("div");
+
+      if (matchingCourses.length === 0) {
+        // Free Slot (matching reference screenshot)
+        cell.className = "tt-slot-cell slot-free";
+        const freeLabel = document.createElement("span");
+        freeLabel.textContent = "Free";
+        cell.appendChild(freeLabel);
+      } else if (matchingCourses.length === 1) {
+        // Enrolled Slot (matching blue pill style)
+        const c = matchingCourses[0];
+        cell.className = "tt-slot-cell slot-enrolled";
+        cell.title = `${c.sectionKey} [${c.timingStr}]`;
+
+        cell.innerHTML = `
+          <div class="tt-card-header">
+            <span class="tt-course-code">${c.courseCode}</span>
+          </div>
+          <div class="tt-card-body">
+            <span class="tt-sec-badge">${c.section}</span>
+          </div>
+          <div class="tt-card-footer">
+            <span class="tt-faculty-badge">${c.faculty}</span>
+          </div>
+        `;
+      } else {
+        // Time Clash Slot (2 or more courses overlapping)
+        totalClashSlots++;
+        cell.className = "tt-slot-cell slot-clash";
+        cell.title = `Time clash between ${matchingCourses.length} courses!`;
+
+        const itemsHtml = matchingCourses.map(c => `
+          <div class="tt-clash-item">
+            <div>
+              <span class="tt-clash-course">${c.courseCode}</span>
+              <span style="color:var(--text-muted); font-size:0.7rem;"> ${c.section}</span>
+            </div>
+            <button class="tt-clash-drop" title="Drop ${c.courseCode}" onclick="event.stopPropagation(); dropSectionByKey('${c.sectionKey.replace(/'/g, "\\'")}')">✕</button>
+          </div>
+        `).join("");
+
+        cell.innerHTML = `
+          <div class="tt-clash-header">
+            <span>⚠️ Clash (${matchingCourses.length})</span>
+          </div>
+          <div class="tt-clash-items">
+            ${itemsHtml}
+          </div>
+        `;
       }
-      
-      const classItem = document.createElement("div");
-      classItem.style.marginBottom = "12px";
-      classItem.style.padding = "12px";
-      classItem.style.borderRadius = "8px";
-      classItem.style.background = "rgba(0,0,0,0.3)";
-      classItem.style.borderLeft = `4px solid ${courseColors.get(cls.courseName)}`;
-      classItem.style.display = "flex";
-      classItem.style.flexDirection = "column";
-      classItem.style.gap = "6px";
-      classItem.style.transition = "transform 0.2s ease";
-      
-      classItem.onmouseover = () => classItem.style.transform = "translateX(5px)";
-      classItem.onmouseout = () => classItem.style.transform = "translateX(0)";
 
-      const nameEl = document.createElement("span");
-      nameEl.textContent = cls.courseName;
-      nameEl.style.fontWeight = "600";
-      nameEl.style.color = courseColors.get(cls.courseName);
-      nameEl.style.fontSize = "1.05rem";
+      grid.appendChild(cell);
+    }
+  });
 
-      const timeEl = document.createElement("span");
-      timeEl.textContent = "⏱ " + cls.timeString;
-      timeEl.style.color = "var(--text-muted)";
-      timeEl.style.fontSize = "0.9rem";
+  // Calculate unique section count & weekly study hours
+  const uniqueSelectedSections = new Set(selected.map(c => getSectionKey(c)));
+  selected.forEach(courseStr => {
+    const timing = extractTiming(courseStr);
+    if (timing) {
+      const days = extractDays(courseStr);
+      totalMinutes += (timing.endMin - timing.startMin) * (days.length || 1);
+    }
+  });
 
-      classItem.appendChild(nameEl);
-      classItem.appendChild(timeEl);
-      dayCard.appendChild(classItem);
+  // 3. Update Timetable Stats Toolbar
+  const enrolledCountEl = document.getElementById("ttEnrolledCount");
+  if (enrolledCountEl) {
+    enrolledCountEl.textContent = `${uniqueSelectedSections.size} Class${uniqueSelectedSections.size !== 1 ? 'es' : ''}`;
+  }
+
+  const hoursEl = document.getElementById("ttWeeklyHours");
+  if (hoursEl) {
+    const hours = (totalMinutes / 60).toFixed(1);
+    hoursEl.textContent = `${hours} hrs/wk`;
+  }
+
+  const clashChip = document.getElementById("ttClashChip");
+  const clashStatusEl = document.getElementById("ttClashStatus");
+  if (clashChip && clashStatusEl) {
+    if (totalClashSlots > 0) {
+      clashChip.classList.add("clash-active");
+      clashStatusEl.textContent = `⚠️ ${totalClashSlots} Clash${totalClashSlots > 1 ? 'es' : ''}`;
+    } else {
+      clashChip.classList.remove("clash-active");
+      clashStatusEl.textContent = "No Clashes";
+    }
+  }
+
+  const freeDaysEl = document.getElementById("ttFreeDaysText");
+  if (freeDaysEl) {
+    const freeDayNames = [];
+    TIMETABLE_DAYS.forEach((d, idx) => {
+      if (!daysWithClasses.has(idx)) {
+        freeDayNames.push(d.name.substring(0, 3));
+      }
     });
 
-    grid.appendChild(dayCard);
+    if (freeDayNames.length === 7) {
+      freeDaysEl.textContent = "All Days Free";
+    } else if (freeDayNames.length === 0) {
+      freeDaysEl.textContent = "No Free Days";
+    } else {
+      freeDaysEl.textContent = `Free: ${freeDayNames.join(", ")}`;
+    }
+  }
+
+  // Update hint banner visibility
+  const hintBanner = document.getElementById("timetableHintBanner");
+  if (hintBanner) {
+    hintBanner.style.display = uniqueSelectedSections.size === 0 ? "flex" : "none";
+  }
+}
+
+// Attach Action Buttons Listeners
+function initTimetableActions() {
+  const printBtn = document.getElementById("printTimetableBtn");
+  if (printBtn) {
+    printBtn.onclick = () => window.print();
+  }
+
+  const clearBtn = document.getElementById("clearTimetableBtn");
+  if (clearBtn) {
+    clearBtn.onclick = () => {
+      if (selected.length === 0) {
+        alert("No courses are currently selected.");
+        return;
+      }
+      if (confirm("Are you sure you want to drop all selected courses from your schedule?")) {
+        selected = [];
+        const searchEl = document.getElementById("searchInput");
+        if (searchEl) renderCourses(searchEl.value);
+        else renderCourses();
+        renderSelected();
+        renderSchedule();
+      }
+    };
+  }
+
+  const copyTextBtn = document.getElementById("copyTimetableTextBtn");
+  if (copyTextBtn) {
+    copyTextBtn.onclick = () => {
+      if (selected.length === 0) {
+        alert("Select courses first to generate a routine summary.");
+        return;
+      }
+      const uniqueKeys = Array.from(new Set(selected.map(c => getSectionKey(c))));
+      let text = "========================================\n";
+      text += "   EWU WEEKLY TIMETABLE (FALL 2026)\n";
+      text += "========================================\n\n";
+
+      for (let dayIdx = 0; dayIdx < 7; dayIdx++) {
+        const dayClasses = [];
+        selected.forEach(courseStr => {
+          const days = extractDays(courseStr);
+          if (days.includes(dayIdx)) {
+            const timing = extractTiming(courseStr);
+            const secKey = getSectionKey(courseStr);
+            if (!dayClasses.some(dc => dc.secKey === secKey)) {
+              dayClasses.push({
+                secKey,
+                time: timing ? `${timing.startTimeStr} - ${timing.endTimeStr}` : "TBA",
+                startMin: timing ? timing.startMin : 0
+              });
+            }
+          }
+        });
+
+        if (dayClasses.length > 0) {
+          dayClasses.sort((a, b) => a.startMin - b.startMin);
+          text += `📅 ${TIMETABLE_DAYS[dayIdx].name}:\n`;
+          dayClasses.forEach(c => {
+            text += `   • ${c.secKey} [${c.time}]\n`;
+          });
+          text += "\n";
+        }
+      }
+
+      text += `Total Classes: ${uniqueKeys.length}\n`;
+      text += "Generated by EWU Course Selection System\n";
+
+      navigator.clipboard.writeText(text).then(() => {
+        const origText = copyTextBtn.textContent;
+        copyTextBtn.textContent = "✅ Copied Routine!";
+        setTimeout(() => { copyTextBtn.textContent = origText; }, 2200);
+      }).catch(() => {
+        alert(text);
+      });
+    };
   }
 }
 
@@ -3682,7 +3900,8 @@ tabBtns.forEach(btn => {
     
     // Add active class to clicked
     btn.classList.add("active");
-    document.getElementById(tabName + "-tab").classList.add("active");
+    const targetTab = document.getElementById(tabName + "-tab");
+    if (targetTab) targetTab.classList.add("active");
     
     // Render schedule if switching to schedule tab
     if (tabName === "schedule") {
@@ -3697,6 +3916,10 @@ window.renderSelected = function() {
   originalRenderSelected.call(this);
   renderSchedule();
 };
+
+// Initial schedule and actions binding
+initTimetableActions();
+renderSchedule();
 
 // Generate stars
 function createStars() {

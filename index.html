@@ -57,10 +57,80 @@
             </section>
 
             <section id="schedule-tab" class="tab-content">
-                <div class="schedule-container">
-                    <h2>Your Schedule</h2>
-                    <div class="schedule-grid" id="scheduleGrid"></div>
-                    <div id="noScheduleMsg" class="no-schedule">Select courses to view schedule</div>
+                <div class="timetable-wrapper">
+                    <!-- Top Timetable Matrix Header Bar matching user reference -->
+                    <div class="timetable-header-bar">
+                        <div class="timetable-title-group">
+                            <h2 class="timetable-title">
+                                <span class="timetable-icon">🗓️</span> Weekly Timetable Matrix
+                            </h2>
+                            <p class="timetable-subtitle">Interactive weekly routine visualizer with clash detection</p>
+                        </div>
+
+                        <!-- Legend exactly as in screenshot -->
+                        <div class="timetable-legend">
+                            <div class="legend-item">
+                                <span class="legend-badge enrolled"></span>
+                                <span class="legend-label">Enrolled Slot</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-badge free"></span>
+                                <span class="legend-label">Free Slot</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-badge clash"></span>
+                                <span class="legend-label">Time Clash</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Matrix Stats & Controls Bar -->
+                    <div class="timetable-toolbar glass-panel">
+                        <div class="timetable-stats">
+                            <div class="tt-stat-chip">
+                                <span class="tt-stat-icon">📚</span>
+                                <span class="tt-stat-val" id="ttEnrolledCount">0 Classes</span>
+                            </div>
+                            <div class="tt-stat-chip">
+                                <span class="tt-stat-icon">⏱️</span>
+                                <span class="tt-stat-val" id="ttWeeklyHours">0 hrs/wk</span>
+                            </div>
+                            <div class="tt-stat-chip" id="ttClashChip">
+                                <span class="tt-stat-icon">✅</span>
+                                <span class="tt-stat-val" id="ttClashStatus">No Clashes</span>
+                            </div>
+                            <div class="tt-stat-chip highlight-chip" id="ttFreeDaysChip">
+                                <span class="tt-stat-icon">🏖️</span>
+                                <span class="tt-stat-val" id="ttFreeDaysText">All Days Free</span>
+                            </div>
+                        </div>
+
+                        <div class="timetable-actions">
+                            <button id="printTimetableBtn" class="unique-btn secondary-btn" title="Print or save as PDF">
+                                🖨️ Print / PDF
+                            </button>
+                            <button id="copyTimetableTextBtn" class="unique-btn secondary-btn" title="Copy text summary of routine">
+                                📋 Copy Routine
+                            </button>
+                            <button id="clearTimetableBtn" class="unique-btn secondary-btn" title="Drop all selected courses">
+                                🗑️ Clear All
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- The Matrix Scrollable Grid Container -->
+                    <div class="timetable-matrix-container glass-panel">
+                        <div class="timetable-matrix-scroll" id="timetableMatrixScroll">
+                            <div class="timetable-matrix-grid" id="scheduleGrid">
+                                <!-- Dynamic timetable matrix rendered by script.js -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state or helpful hint banner below matrix -->
+                    <div id="timetableHintBanner" class="timetable-hint-banner">
+                        <span>💡 Tip: Select courses from the <strong>Search Courses</strong> tab to automatically populate your weekly timetable matrix.</span>
+                    </div>
                 </div>
             </section>
 
