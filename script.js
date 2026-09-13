@@ -3380,8 +3380,17 @@ function renderCourses(searchTerm = "") {
       section.parts.forEach(p => {
         const tMatch = p.match(/\[(.*?)\]/);
         if (tMatch) {
+          const timing = extractTiming(p);
+          const isLab = timing && (timing.endMin - timing.startMin) > 90;
+          const typeBadge = isLab
+            ? `<span class="badge-type-tag lab">Lab</span>`
+            : `<span class="badge-type-tag theory">Theory</span>`;
           const td = document.createElement("div");
-          td.textContent = `• ${tMatch[1]}`;
+          td.style.display = "flex";
+          td.style.alignItems = "center";
+          td.style.gap = "6px";
+          td.style.margin = "2px 0";
+          td.innerHTML = `<span>• ${tMatch[1]}</span> ${typeBadge}`;
           timesDiv.appendChild(td);
         }
       });
@@ -3502,10 +3511,18 @@ function renderSelected() {
     parts.forEach(p => {
         const tMatch = p.match(/\[(.*?)\]/);
         if (tMatch) {
+            const timing = extractTiming(p);
+            const isLab = timing && (timing.endMin - timing.startMin) > 90;
+            const typeBadge = isLab
+              ? `<span class="badge-type-tag lab">Lab</span>`
+              : `<span class="badge-type-tag theory">Theory</span>`;
             const td = document.createElement("div");
-            td.textContent = `• ${tMatch[1]}`;
-            td.style.fontSize = "0.9rem";
+            td.style.display = "flex";
+            td.style.alignItems = "center";
+            td.style.gap = "6px";
+            td.style.fontSize = "0.88rem";
             td.style.color = "var(--text-muted)";
+            td.innerHTML = `<span>• ${tMatch[1]}</span> ${typeBadge}`;
             li.appendChild(td);
         }
     });
@@ -3672,21 +3689,25 @@ function renderSchedule() {
         if (!timing) return;
 
         if (timeRangesOverlap(timing.startMin, timing.endMin, slot.start, slot.end)) {
-          const secKey = getSectionKey(courseStr);
-          if (!seenSectionKeys.has(secKey)) {
-            seenSectionKeys.add(secKey);
+          const itemKey = `${courseStr}_${dayIdx}_${slot.start}_${slot.end}`;
+          if (!seenSectionKeys.has(itemKey)) {
+            seenSectionKeys.add(itemKey);
             const codeMatch = courseStr.match(/^([A-Za-z0-9]+)/);
             const secMatch = courseStr.match(/\((Sec\s+\d+)\)/);
             const facMatch = courseStr.match(/- ([A-Za-z0-9]+)\s*\[/);
+            const durationMin = Math.max(0, timing.endMin - timing.startMin);
+            const isLab = durationMin > 90; // > 1:30h is Lab (purple), <= 1:30h is Theory (blue)
+            const classType = isLab ? "lab" : "theory";
 
             matchingCourses.push({
               fullString: courseStr,
-              sectionKey: secKey,
+              sectionKey: getSectionKey(courseStr),
               courseCode: codeMatch ? codeMatch[1] : "COURSE",
               section: secMatch ? secMatch[1] : "",
               faculty: facMatch ? facMatch[1] : "TBA",
               timingStr: `${timing.startTimeStr} - ${timing.endTimeStr}`,
-              durationMin: Math.max(0, timing.endMin - timing.startMin)
+              durationMin: durationMin,
+              classType: classType
             });
 
             daysWithClasses.add(dayIdx);
@@ -3703,20 +3724,24 @@ function renderSchedule() {
         freeLabel.textContent = "Free";
         cell.appendChild(freeLabel);
       } else if (matchingCourses.length === 1) {
-        // Enrolled Slot (matching blue pill style)
+        // Enrolled Slot (Theory = Blue, Lab = Purple)
         const c = matchingCourses[0];
-        cell.className = "tt-slot-cell slot-enrolled";
-        cell.title = `${c.sectionKey} [${c.timingStr}]`;
+        const isLab = c.classType === "lab";
+        cell.className = `tt-slot-cell slot-enrolled ${isLab ? "slot-lab" : "slot-theory"}`;
+        cell.title = `${c.sectionKey} [${isLab ? "LAB" : "THEORY"}: ${c.timingStr}]`;
 
         cell.innerHTML = `
           <div class="tt-card-header">
             <span class="tt-course-code">${c.courseCode}</span>
+            <span class="tt-type-pill ${c.classType}">${isLab ? "Lab" : "Theory"}</span>
           </div>
           <div class="tt-card-body">
             <span class="tt-sec-badge">${c.section}</span>
+            <span class="tt-card-time">${c.timingStr}</span>
           </div>
           <div class="tt-card-footer">
             <span class="tt-faculty-badge">${c.faculty}</span>
+            <button class="tt-card-drop-btn" title="Drop ${c.courseCode}" onclick="event.stopPropagation(); dropSectionByKey('${c.sectionKey.replace(/'/g, "\\'")}')">✕</button>
           </div>
         `;
       } else {
@@ -3726,10 +3751,11 @@ function renderSchedule() {
         cell.title = `Time clash between ${matchingCourses.length} courses!`;
 
         const itemsHtml = matchingCourses.map(c => `
-          <div class="tt-clash-item">
-            <div>
+          <div class="tt-clash-item ${c.classType}">
+            <div class="tt-clash-info">
               <span class="tt-clash-course">${c.courseCode}</span>
-              <span style="color:var(--text-muted); font-size:0.7rem;"> ${c.section}</span>
+              <span class="tt-clash-type-badge ${c.classType}">${c.classType === "lab" ? "Lab" : "Theory"}</span>
+              <span class="tt-clash-sec">${c.section}</span>
             </div>
             <button class="tt-clash-drop" title="Drop ${c.courseCode}" onclick="event.stopPropagation(); dropSectionByKey('${c.sectionKey.replace(/'/g, "\\'")}')">✕</button>
           </div>
@@ -3749,13 +3775,22 @@ function renderSchedule() {
     }
   });
 
-  // Calculate unique section count & weekly study hours
+  // Calculate unique section count, theory/lab breakdown & weekly study hours
   const uniqueSelectedSections = new Set(selected.map(c => getSectionKey(c)));
+  let theoryCount = 0;
+  let labCount = 0;
+
   selected.forEach(courseStr => {
     const timing = extractTiming(courseStr);
     if (timing) {
       const days = extractDays(courseStr);
-      totalMinutes += (timing.endMin - timing.startMin) * (days.length || 1);
+      const duration = timing.endMin - timing.startMin;
+      totalMinutes += duration * (days.length || 1);
+      if (duration > 90) {
+        labCount++;
+      } else {
+        theoryCount++;
+      }
     }
   });
 
@@ -3763,6 +3798,16 @@ function renderSchedule() {
   const enrolledCountEl = document.getElementById("ttEnrolledCount");
   if (enrolledCountEl) {
     enrolledCountEl.textContent = `${uniqueSelectedSections.size} Class${uniqueSelectedSections.size !== 1 ? 'es' : ''}`;
+  }
+
+  const theoryCountEl = document.getElementById("ttTheoryCount");
+  if (theoryCountEl) {
+    theoryCountEl.textContent = `${theoryCount} Theory`;
+  }
+
+  const labCountEl = document.getElementById("ttLabCount");
+  if (labCountEl) {
+    labCountEl.textContent = `${labCount} Lab`;
   }
 
   const hoursEl = document.getElementById("ttWeeklyHours");
@@ -3852,10 +3897,14 @@ function initTimetableActions() {
           if (days.includes(dayIdx)) {
             const timing = extractTiming(courseStr);
             const secKey = getSectionKey(courseStr);
-            if (!dayClasses.some(dc => dc.secKey === secKey)) {
+            const duration = timing ? (timing.endMin - timing.startMin) : 0;
+            const typeLabel = duration > 90 ? "Lab" : "Theory";
+            const timeLabel = timing ? `${timing.startTimeStr} - ${timing.endTimeStr}` : "TBA";
+            if (!dayClasses.some(dc => dc.secKey === secKey && dc.time === timeLabel)) {
               dayClasses.push({
                 secKey,
-                time: timing ? `${timing.startTimeStr} - ${timing.endTimeStr}` : "TBA",
+                typeLabel,
+                time: timeLabel,
                 startMin: timing ? timing.startMin : 0
               });
             }
@@ -3866,7 +3915,7 @@ function initTimetableActions() {
           dayClasses.sort((a, b) => a.startMin - b.startMin);
           text += `📅 ${TIMETABLE_DAYS[dayIdx].name}:\n`;
           dayClasses.forEach(c => {
-            text += `   • ${c.secKey} [${c.time}]\n`;
+            text += `   • ${c.secKey} [${c.typeLabel}] [${c.time}]\n`;
           });
           text += "\n";
         }

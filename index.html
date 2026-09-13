@@ -67,11 +67,15 @@
                             <p class="timetable-subtitle">Interactive weekly routine visualizer with clash detection</p>
                         </div>
 
-                        <!-- Legend exactly as in screenshot -->
+                        <!-- Legend for Theory (Blue), Lab (Purple), Free, and Clash -->
                         <div class="timetable-legend">
                             <div class="legend-item">
-                                <span class="legend-badge enrolled"></span>
-                                <span class="legend-label">Enrolled Slot</span>
+                                <span class="legend-badge theory"></span>
+                                <span class="legend-label">Theory (1:30h)</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-badge lab"></span>
+                                <span class="legend-label">Lab (&gt;1:30h)</span>
                             </div>
                             <div class="legend-item">
                                 <span class="legend-badge free"></span>
@@ -90,6 +94,14 @@
                             <div class="tt-stat-chip">
                                 <span class="tt-stat-icon">📚</span>
                                 <span class="tt-stat-val" id="ttEnrolledCount">0 Classes</span>
+                            </div>
+                            <div class="tt-stat-chip theory-stat-chip" title="Theory classes (1:30h duration)">
+                                <span class="tt-stat-icon">📘</span>
+                                <span class="tt-stat-val" id="ttTheoryCount">0 Theory</span>
+                            </div>
+                            <div class="tt-stat-chip lab-stat-chip" title="Lab classes (>1:30h duration)">
+                                <span class="tt-stat-icon">🔬</span>
+                                <span class="tt-stat-val" id="ttLabCount">0 Lab</span>
                             </div>
                             <div class="tt-stat-chip">
                                 <span class="tt-stat-icon">⏱️</span>

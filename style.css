@@ -707,9 +707,15 @@ button.btn-remove:hover {
   transition: var(--transition);
 }
 
+.legend-badge.theory,
 .legend-badge.enrolled {
-  background: linear-gradient(135deg, #1e40af, #2563eb);
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.legend-badge.lab {
+  background: linear-gradient(135deg, #6d28d9, #9333ea);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
 }
 
 .legend-badge.free {
@@ -755,6 +761,28 @@ button.btn-remove:hover {
   font-weight: 600;
   color: var(--text-secondary);
   transition: var(--transition);
+}
+
+.tt-stat-chip.theory-stat-chip {
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  color: #1d4ed8;
+}
+
+.tt-stat-chip.theory-stat-chip .tt-stat-val {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.tt-stat-chip.lab-stat-chip {
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  color: #6d28d9;
+}
+
+.tt-stat-chip.lab-stat-chip .tt-stat-val {
+  color: #6d28d9;
+  font-weight: 700;
 }
 
 .tt-stat-chip.highlight-chip {
@@ -928,17 +956,44 @@ button.btn-remove:hover {
   transform: translateY(-1px);
 }
 
-/* 2. Enrolled Slot Card */
+/* 2. Enrolled Slot Card (Theory = Blue, Lab = Purple) */
 .tt-slot-cell.slot-enrolled {
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 60%, #3b82f6 100%);
   color: #ffffff;
   border-radius: 14px;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.18);
   justify-content: space-between;
   padding: 10px;
   cursor: pointer;
   animation: slotPopIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Theory Slot - Vibrant Blue */
+.tt-slot-cell.slot-theory,
+.tt-slot-cell.slot-enrolled.slot-theory {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 55%, #3b82f6 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.tt-slot-cell.slot-theory:hover,
+.tt-slot-cell.slot-enrolled.slot-theory:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.52);
+}
+
+/* Lab Slot - Vibrant Purple */
+.tt-slot-cell.slot-lab,
+.tt-slot-cell.slot-enrolled.slot-lab {
+  background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 55%, #9333ea 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.38);
+}
+
+.tt-slot-cell.slot-lab:hover,
+.tt-slot-cell.slot-enrolled.slot-lab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.55);
 }
 
 @keyframes slotPopIn {
@@ -946,25 +1001,48 @@ button.btn-remove:hover {
   to { opacity: 1; transform: scale(1); }
 }
 
-.tt-slot-cell.slot-enrolled:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.48);
-}
-
 .tt-card-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 100%;
+  gap: 4px;
 }
 
 .tt-course-code {
   font-family: var(--font-head);
   font-weight: 800;
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   color: #ffffff;
   letter-spacing: 0.3px;
   line-height: 1.2;
+}
+
+/* Theory / Lab Type Pills in Slot Card */
+.tt-type-pill {
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
+}
+
+.tt-type-pill.theory {
+  background: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.tt-type-pill.lab {
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(4px);
 }
 
 .tt-drop-btn {
@@ -973,38 +1051,74 @@ button.btn-remove:hover {
 
 .tt-card-body {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 3px 0;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 3px;
+  margin: 4px 0;
 }
 
 .tt-sec-badge {
   background: rgba(255, 255, 255, 0.22);
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 6px;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.2px;
+  width: fit-content;
   backdrop-filter: blur(4px);
+}
+
+.tt-card-time {
+  font-size: 0.65rem;
+  opacity: 0.92;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .tt-card-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 100%;
   font-size: 0.74rem;
   opacity: 0.95;
+  gap: 4px;
 }
 
 .tt-faculty-badge {
   font-weight: 700;
   background: rgba(0, 0, 0, 0.25);
-  padding: 2px 8px;
-  border-radius: 6px;
+  padding: 2px 7px;
+  border-radius: 5px;
   letter-spacing: 0.4px;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
+}
+
+.tt-card-drop-btn {
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  width: 19px;
+  height: 19px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  margin-left: auto;
+}
+
+.tt-card-drop-btn:hover {
+  background: rgba(239, 68, 68, 0.9);
+  color: #ffffff;
+  transform: scale(1.15);
 }
 
 .tt-exact-time {
@@ -1059,9 +1173,48 @@ button.btn-remove:hover {
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
+.tt-clash-item.theory {
+  border-left: 3px solid #2563eb;
+}
+
+.tt-clash-item.lab {
+  border-left: 3px solid #7c3aed;
+}
+
+.tt-clash-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+
 .tt-clash-course {
   font-weight: 700;
-  color: #b91c1c;
+  color: #1e293b;
+}
+
+.tt-clash-type-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.tt-clash-type-badge.theory {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tt-clash-type-badge.lab {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.tt-clash-sec {
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .tt-clash-drop {
@@ -1078,6 +1231,29 @@ button.btn-remove:hover {
 .tt-clash-drop:hover {
   transform: scale(1.2);
   color: #991b1b;
+}
+
+/* Theory & Lab badges in Course Search and Selected sidebar lists */
+.badge-type-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.badge-type-tag.theory {
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.badge-type-tag.lab {
+  background: rgba(124, 58, 237, 0.1);
+  color: #6d28d9;
+  border: 1px solid rgba(124, 58, 237, 0.25);
 }
 
 /* Hint Banner */
@@ -1103,7 +1279,7 @@ button.btn-remove:hover {
   }
   .glow-bg, header, .tabs, .semester-badge,
   .timetable-toolbar, .timetable-hint-banner,
-  .tt-drop-btn, .tt-clash-drop,
+  .tt-drop-btn, .tt-clash-drop, .tt-card-drop-btn,
   #search-tab, #gpa-tab, #finding-courses-tab {
     display: none !important;
   }
@@ -1141,8 +1317,15 @@ button.btn-remove:hover {
     border: 1px dashed #bbb !important;
     background: #fff !important;
   }
+  .tt-slot-cell.slot-theory,
   .tt-slot-cell.slot-enrolled {
     background: #2563eb !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color: #fff !important;
+  }
+  .tt-slot-cell.slot-lab {
+    background: #7c3aed !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     color: #fff !important;
