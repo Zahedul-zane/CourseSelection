@@ -1,4 +1,4 @@
-const courses = [
+const fallbackCourses = [
     "CSE101 (Sec 1) - MAR [M 10:10 AM - 11:40 AM]",
     "CSE101 (Sec 1) - MAR [W 10:10 AM - 11:40 AM]",
     "CSE101 (Sec 2) - MIR [W 10:10 AM - 11:40 AM]",
@@ -3139,6 +3139,8 @@ const courses = [
     "SCM9527 (Sec 1) - TBA [F 09:00 AM - 12:00 PM]"
 ];
 
+let courses = [];
+
 const courseList = document.getElementById("courseList");
 const selectedCourses = document.getElementById("selectedCourses");
 const searchInput = document.getElementById("searchInput");
@@ -3161,15 +3163,80 @@ function getSectionKey(courseStr) {
 }
 
 // Group courses by section
-const groupedCoursesMap = new Map();
-courses.forEach(c => {
+let groupedCoursesMap = new Map();
+let groupedCourseKeys = [];
+
+function rebuildCourseGroups() {
+  groupedCoursesMap = new Map();
+  courses.forEach(c => {
   const key = getSectionKey(c);
   if (!groupedCoursesMap.has(key)) {
     groupedCoursesMap.set(key, []);
   }
   groupedCoursesMap.get(key).push(c);
-});
-const groupedCourseKeys = Array.from(groupedCoursesMap.keys());
+  });
+  groupedCourseKeys = Array.from(groupedCoursesMap.keys());
+}
+
+async function loadSpring2027Courses() {
+  try {
+    const response = await fetch('Updated_Faculty_List_Spring-2027.2026-11-24.13-29-27.xlsx');
+    if (!response.ok) throw new Error(`Workbook request failed (${response.status})`);
+
+    const workbook = XLSX.read(await response.arrayBuffer(), { type: 'array' });
+    const loadedCourses = [];
+
+    workbook.SheetNames.forEach(sheetName => {
+      const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
+        header: 1,
+        defval: '',
+        raw: false
+      });
+
+      let courseCode = '';
+      let section = '';
+      let faculty = '';
+
+      rows.forEach(row => {
+        const first = String(row[0] || '').trim();
+        const second = row[1];
+        const third = String(row[2] || '').trim();
+        const timing = String(row[4] || '').trim();
+
+        if (/^[A-Z]+\d+/i.test(first)) {
+          courseCode = first.toUpperCase();
+          section = second !== '' && second !== null && second !== undefined ? String(second).trim() : '1';
+        } else if (second !== '' && second !== null && second !== undefined) {
+          section = String(second).trim();
+        }
+        if (third) faculty = third;
+
+        if (!courseCode || !timing) return;
+        if (timing === 'Timing') return;
+        if (!/^[A-Z]+\s+\d{1,2}:\d{2}\s+[AP]M\s+-\s+\d{1,2}:\d{2}\s+[AP]M$/.test(timing)) return;
+
+        const sectionNumber = section || '1';
+        loadedCourses.push(`${courseCode} (Sec ${sectionNumber}) - ${faculty || 'TBA'} [${timing}]`);
+      });
+    });
+
+    if (loadedCourses.length) {
+      courses = loadedCourses;
+    } else {
+      courses = fallbackCourses;
+      console.warn('The Spring 2027 workbook contained no recognized course rows; fallback data is being used.');
+    }
+  } catch (error) {
+    courses = fallbackCourses;
+    console.error('Unable to load Spring 2027 faculty data:', error);
+  }
+
+  rebuildCourseGroups();
+  if (searchInput) renderCourses(searchInput.value);
+  else renderCourses();
+  renderSelected();
+  if (typeof renderSchedule === 'function') renderSchedule();
+}
 
 function parseTiming(courseStr) {
   const match = courseStr.match(/\[([A-Z]+)\s+(\d{1,2}:\d{2}\s+[AP]M)\s+-\s+(\d{1,2}:\d{2}\s+[AP]M)\]/);
@@ -4001,4 +4068,4 @@ function createStars() {
 }
 
 createStars();
-renderCourses();
+loadSpring2027Courses();

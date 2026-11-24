@@ -195,7 +195,7 @@ const ThemeManager = (() => {
   copyBtn.addEventListener('click', () => {
     const modalTitle = document.querySelector('#listModal h2').textContent;
     const items = listContent.querySelectorAll('.list-item');
-    let text = `${modalTitle} (Fall 2026)\n${'='.repeat(modalTitle.length + 12)}\n\n`;
+    let text = `${modalTitle} (Spring 2027)\n${'='.repeat(modalTitle.length + 12)}\n\n`;
     
     items.forEach(item => {
       const titleEl = item.querySelector('.list-item-title');
@@ -625,7 +625,7 @@ const ThemeManager = (() => {
   reportBtn.addEventListener('click', () => {
     const rows = gpaRowsContainer.querySelectorAll('.gpa-row-entry');
     let reportText = `🎓 EAST WEST UNIVERSITY — CGPA ACADEMIC REPORT\n`;
-    reportText += `Generated: ${new Date().toLocaleDateString()} | Semester: Fall 2026\n`;
+    reportText += `Generated: ${new Date().toLocaleDateString()} | Semester: Spring 2027\n`;
     reportText += `====================================================\n\n`;
     
     reportText += `ACADEMIC SUMMARY:\n`;

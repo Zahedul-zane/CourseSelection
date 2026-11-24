@@ -1796,6 +1796,134 @@ button.btn-remove:hover {
   border-radius: 50%;
 }
 
+/* Professional Spring 2027 presentation */
+header.app-header {
+  min-height: 210px;
+  padding: 34px 5% 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px);
+  box-sizing: border-box;
+}
+
+.header-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+header.app-header .semester-badge {
+  position: static;
+  margin: 0 0 14px;
+  pointer-events: auto;
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.14);
+  animation: none;
+}
+
+header.app-header .neon-text {
+  margin: 0 0 6px;
+  font-size: clamp(2.1rem, 4vw, 3.25rem);
+}
+
+header.app-header .header-sub {
+  font-size: 0.98rem;
+  letter-spacing: 0.1px;
+}
+
+header.app-header .live-clock-widget {
+  margin: 0;
+  min-width: 190px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  box-shadow: 8px 8px 20px rgba(209, 217, 230, 0.8),
+              -8px -8px 20px rgba(255, 255, 255, 0.95);
+}
+
+.container.glass-panel {
+  width: min(94%, 1440px);
+  margin-top: 28px;
+  background: rgba(244, 246, 251, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.tabs {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 28px;
+  border-radius: 18px;
+}
+
+.tab-btn {
+  white-space: nowrap;
+  border-radius: 13px;
+}
+
+.tab-btn.active {
+  background: #ffffff;
+  color: #1d4ed8;
+  box-shadow: 4px 4px 10px #d1d9e6, -4px -4px 10px #ffffff;
+}
+
+.course,
+.curr-stat-card,
+.program-btn,
+.gpa-summary,
+.gpa-inputs {
+  border: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.course:hover {
+  transform: translateY(-1px);
+  border-color: rgba(37, 99, 235, 0.18);
+}
+
+@media (max-width: 900px) {
+  header.app-header {
+    min-height: auto;
+    align-items: flex-start;
+  }
+
+  header.app-header .live-clock-widget {
+    min-width: 150px;
+  }
+
+  .tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  header.app-header {
+    padding: 24px 20px;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  header.app-header .live-clock-widget {
+    align-self: stretch;
+  }
+
+  .container.glass-panel {
+    width: calc(100% - 24px);
+    padding: 18px 14px;
+  }
+
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-btn {
+    width: 100%;
+  }
+}
+
 /* ────────────────────────────────────────────
    RESPONSIVE
 ──────────────────────────────────────────── */
@@ -3242,5 +3370,1221 @@ select:focus-visible {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Editorial dark dashboard — Spring 2027 */
+:root {
+  --neu-base: #111827;
+  --neu-light: #1f2937;
+  --neu-dark: #080c14;
+  --neu-surface: #172033;
+  --neu-surface-2: #202b40;
+  --accent-1: #c4f36a;
+  --accent-2: #a7e22f;
+  --accent-3: #67e8f9;
+  --accent-4: #fb923c;
+  --accent-glow: rgba(196, 243, 106, 0.18);
+  --accent-glow-sm: rgba(196, 243, 106, 0.08);
+  --text-primary: #f8fafc;
+  --text-secondary: #d7deea;
+  --text-muted: #98a4b7;
+  --text-accent: #c4f36a;
+  --neu-shadow-out: 8px 8px 18px #080c14, -5px -5px 14px #1d293d;
+  --neu-shadow-out-lg: 14px 14px 30px #080c14, -8px -8px 22px #1d293d;
+  --neu-shadow-in: inset 4px 4px 9px #080c14, inset -4px -4px 9px #1d293d;
+  --neu-shadow-in-sm: inset 3px 3px 7px #080c14, inset -3px -3px 7px #1d293d;
+  --neu-shadow-pressed: inset 5px 5px 10px #080c14, inset -3px -3px 8px #1d293d;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+}
+
+body {
+  background:
+    linear-gradient(rgba(196, 243, 106, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196, 243, 106, 0.025) 1px, transparent 1px),
+    #111827;
+  background-size: 32px 32px;
+}
+
+body::before,
+body::after,
+.glow-bg {
+  display: none;
+}
+
+header.app-header {
+  min-height: 190px;
+  background: #111827;
+  border-bottom: 1px solid #29364a;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.header-copy {
+  padding-left: 18px;
+  border-left: 5px solid var(--accent-1);
+}
+
+.neon-text,
+header.app-header .neon-text {
+  background: none;
+  color: #f8fafc;
+  -webkit-text-fill-color: #f8fafc;
+  filter: none;
+  letter-spacing: -2.2px;
+  animation: none;
+  text-transform: uppercase;
+}
+
+.header-sub {
+  color: #98a4b7;
+  font-size: 1rem;
+  letter-spacing: 0;
+}
+
+header.app-header .semester-badge,
+.semester-badge {
+  background: var(--accent-1);
+  color: #111827;
+  border: none;
+  box-shadow: 0 10px 26px rgba(196, 243, 106, 0.14);
+  animation: none;
+}
+
+header.app-header .live-clock-widget,
+.live-clock-widget {
+  background: #172033;
+  border: 1px solid #2d3a50;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.clock-time {
+  color: var(--accent-3);
+}
+
+.clock-date {
+  color: var(--text-muted);
+}
+
+.container.glass-panel,
+.container {
+  background: #111827;
+  border: 1px solid #29364a;
+  box-shadow: 0 24px 70px rgba(4, 7, 12, 0.42);
+}
+
+.glass-panel {
+  background: #172033;
+  border: 1px solid #29364a;
+  box-shadow: 0 10px 30px rgba(4, 7, 12, 0.24);
+}
+
+.glass-panel::before {
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-1), transparent 60%);
+}
+
+.tabs {
+  width: 100%;
+  background: #0d1422;
+  border: 1px solid #29364a;
+  box-shadow: none;
+  border-radius: 12px;
+  padding: 6px;
+}
+
+.tab-btn {
+  color: #98a4b7;
+  border-radius: 8px;
+  letter-spacing: 0.2px;
+}
+
+.tab-btn:hover {
+  background: #172033;
+  color: #f8fafc;
+  box-shadow: none;
+}
+
+.tab-btn.active {
+  background: var(--accent-1);
+  color: #111827;
+  box-shadow: none;
+}
+
+.available-section h2,
+.timetable-title,
+.gpa-header h2,
+.curriculum-title-wrap h2,
+h2,
+h3 {
+  color: #f8fafc;
+}
+
+.search-box input,
+.curr-search-box input,
+.gpa-historical-data input,
+.gpa-row-entry input,
+.gpa-row-entry select,
+.curr-select {
+  background: #0d1422;
+  color: #f8fafc;
+  border: 1px solid #29364a;
+  box-shadow: none;
+}
+
+.search-box input:focus,
+.curr-search-box input:focus,
+.gpa-historical-data input:focus,
+.gpa-row-entry input:focus,
+.gpa-row-entry select:focus {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px rgba(196, 243, 106, 0.08);
+}
+
+.search-box input::placeholder,
+.curr-search-box input::placeholder {
+  color: #76839a;
+}
+
+.course,
+.curr-stat-card,
+.program-btn,
+.stat-item,
+.list-item,
+.curr-category-card,
+.curr-card-item {
+  background: #172033;
+  border: 1px solid #29364a;
+  box-shadow: none;
+}
+
+.course::before {
+  width: 4px;
+  background: var(--accent-1);
+  opacity: 1;
+  border-radius: 0;
+}
+
+.course:hover,
+.curr-stat-card:hover,
+.curr-card-item:hover,
+.stat-item:hover {
+  border-color: rgba(196, 243, 106, 0.55);
+  box-shadow: 0 12px 28px rgba(4, 7, 12, 0.34);
+  transform: translateY(-2px);
+}
+
+.course span,
+.list-item-title,
+.curr-card-code,
+.stat-value,
+.curr-stat-card .stat-num {
+  color: #f8fafc;
+}
+
+.selected-section,
+.gpa-inputs,
+.gpa-summary,
+.curriculum-controls,
+.curriculum-header,
+.timetable-toolbar,
+.timetable-matrix-container,
+.modal-content {
+  background: #172033;
+  border: 1px solid #29364a;
+  box-shadow: none;
+}
+
+#selectedCourses li {
+  background: #0d1422;
+  border: 1px solid #29364a;
+  box-shadow: none;
+  color: #d7deea;
+}
+
+.selection-summary,
+.gpa-table-header,
+.curriculum-table th {
+  border-color: #29364a;
+}
+
+button,
+.unique-btn,
+.tab-btn,
+.view-mode-btn,
+.tbl-act-btn {
+  box-shadow: none;
+}
+
+.unique-btn,
+button.unique-btn {
+  background: var(--accent-1);
+  color: #111827;
+  border: 1px solid var(--accent-1);
+  border-radius: 8px;
+}
+
+.unique-btn:hover,
+button.unique-btn:hover {
+  background: #d3f88b;
+  color: #111827;
+  box-shadow: 0 8px 20px rgba(196, 243, 106, 0.12);
+}
+
+.secondary-btn,
+button.secondary-btn {
+  background: #172033 !important;
+  color: #d7deea !important;
+  border: 1px solid #354158 !important;
+  box-shadow: none !important;
+}
+
+.program-btn.active,
+.view-mode-btn.active {
+  background: #26334a;
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+  box-shadow: none;
+}
+
+.curriculum-table th,
+.curriculum-table td {
+  border-color: #29364a;
+}
+
+.curriculum-table tbody tr:hover td {
+  background: rgba(196, 243, 106, 0.04);
+}
+
+.curr-code-badge,
+.prereq-tag,
+.cat-badge,
+.curr-card-count,
+.academic-standing-badge {
+  background: #26334a;
+  color: var(--accent-1);
+  box-shadow: none;
+  border: 1px solid #354158;
+}
+
+.text-muted,
+.timetable-subtitle,
+.clock-date,
+.gpa-scale-info,
+.list-item-info,
+.curr-card-title,
+.curr-card-count,
+.stat-lbl {
+  color: #98a4b7;
+}
+
+.modal-content {
+  background: #172033;
+  color: #f8fafc;
+}
+
+.modal-header,
+.modal-footer,
+.timetable-hint-banner,
+.gpa-scale-info {
+  border-color: #29364a;
+}
+
+.timetable-hint-banner {
+  background: #172033;
+  color: #98a4b7;
+  border: 1px solid #29364a;
+  border-radius: 10px;
+}
+
+/* Refined university dashboard — professional light system */
+:root {
+  --neu-base: #f5f7fb;
+  --neu-light: #ffffff;
+  --neu-dark: #d5ddea;
+  --neu-surface: #ffffff;
+  --neu-surface-2: #edf1f7;
+  --accent-1: #173b70;
+  --accent-2: #2f67b1;
+  --accent-3: #4d91c9;
+  --accent-4: #b49a67;
+  --accent-glow: rgba(47, 103, 177, 0.14);
+  --accent-glow-sm: rgba(47, 103, 177, 0.07);
+  --text-primary: #172033;
+  --text-secondary: #40506a;
+  --text-muted: #77849a;
+  --text-accent: #173b70;
+  --neu-shadow-out: 7px 7px 18px #d8deea, -7px -7px 18px #ffffff;
+  --neu-shadow-out-lg: 12px 12px 28px #d5ddea, -12px -12px 28px #ffffff;
+  --neu-shadow-in: inset 3px 3px 8px #dce2ec, inset -3px -3px 8px #ffffff;
+  --neu-shadow-in-sm: inset 2px 2px 5px #dce2ec, inset -2px -2px 5px #ffffff;
+  --neu-shadow-pressed: inset 4px 4px 8px #d7deea, inset -3px -3px 7px #ffffff;
+}
+
+body {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(23, 59, 112, 0.055), transparent 24rem),
+    radial-gradient(circle at 96% 100%, rgba(180, 154, 103, 0.055), transparent 22rem),
+    #f5f7fb;
+  background-size: auto;
+}
+
+body::before,
+body::after,
+.glow-bg {
+  display: none;
+}
+
+header.app-header {
+  min-height: 184px;
+  max-width: 1440px;
+  width: calc(100% - 48px);
+  margin: 24px auto 0;
+  padding: 30px 38px;
+  border: 1px solid #e2e7ef;
+  border-radius: 20px;
+  background:
+    linear-gradient(110deg, rgba(255, 255, 255, 0.96), rgba(246, 249, 253, 0.94)),
+    #ffffff;
+  box-shadow: 0 14px 38px rgba(34, 52, 82, 0.08);
+  backdrop-filter: none;
+}
+
+.header-copy {
+  padding-left: 22px;
+  border-left: 3px solid #b49a67;
+}
+
+.neon-text,
+header.app-header .neon-text {
+  background: none;
+  color: #173b70;
+  -webkit-text-fill-color: #173b70;
+  filter: none;
+  letter-spacing: -1.8px;
+  text-transform: none;
+  animation: none;
+}
+
+.header-sub {
+  color: #77849a;
+  letter-spacing: 0.1px;
+}
+
+header.app-header .semester-badge,
+.semester-badge {
+  background: #edf3fa;
+  color: #173b70;
+  border: 1px solid #d8e3f0;
+  border-radius: 7px;
+  box-shadow: none;
+  animation: none;
+  letter-spacing: 1.2px;
+}
+
+header.app-header .live-clock-widget,
+.live-clock-widget {
+  min-width: 172px;
+  background: #ffffff;
+  border: 1px solid #e2e7ef;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(34, 52, 82, 0.07);
+}
+
+.clock-time {
+  color: #173b70;
+  letter-spacing: 1px;
+}
+
+.clock-date {
+  color: #77849a;
+  letter-spacing: 1.2px;
+}
+
+.container.glass-panel,
+.container {
+  width: min(94%, 1440px);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid #e2e7ef;
+  box-shadow: 0 18px 44px rgba(34, 52, 82, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.glass-panel {
+  background: #ffffff;
+  border: 1px solid #e4e9f1;
+  box-shadow: 0 8px 24px rgba(34, 52, 82, 0.055);
+}
+
+.glass-panel::before {
+  display: block;
+  height: 3px;
+  background: linear-gradient(90deg, #173b70 0%, #2f67b1 58%, #b49a67 58%, #b49a67 100%);
+  opacity: 0.9;
+}
+
+.tabs {
+  width: 100%;
+  background: #eef2f7;
+  border: 1px solid #e1e7f0;
+  box-shadow: inset 1px 1px 3px #dde4ef;
+  border-radius: 12px;
+}
+
+.tab-btn {
+  color: #77849a;
+  border-radius: 8px;
+}
+
+.tab-btn:hover {
+  background: #ffffff;
+  color: #173b70;
+  box-shadow: 0 4px 12px rgba(34, 52, 82, 0.07);
+}
+
+.tab-btn.active {
+  background: #173b70;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(23, 59, 112, 0.18);
+}
+
+.available-section h2,
+.timetable-title,
+.gpa-header h2,
+.curriculum-title-wrap h2,
+h2,
+h3 {
+  color: #172033;
+}
+
+.search-box input,
+.curr-search-box input,
+.gpa-historical-data input,
+.gpa-row-entry input,
+.gpa-row-entry select,
+.curr-select {
+  background: #f3f6fa;
+  color: #172033;
+  border: 1px solid #dde4ee;
+  box-shadow: inset 2px 2px 5px #dde4ed, inset -2px -2px 5px #ffffff;
+}
+
+.search-box input:focus,
+.curr-search-box input:focus,
+.gpa-historical-data input:focus,
+.gpa-row-entry input:focus,
+.gpa-row-entry select:focus {
+  border-color: #2f67b1;
+  box-shadow: 0 0 0 3px rgba(47, 103, 177, 0.09);
+}
+
+.course,
+.curr-stat-card,
+.program-btn,
+.stat-item,
+.list-item,
+.curr-category-card,
+.curr-card-item {
+  background: #ffffff;
+  border: 1px solid #e5eaf2;
+  box-shadow: 0 5px 16px rgba(34, 52, 82, 0.055);
+}
+
+.course::before {
+  width: 3px;
+  background: #2f67b1;
+  opacity: 0;
+  border-radius: 0;
+}
+
+.course:hover::before {
+  opacity: 1;
+}
+
+.course:hover,
+.curr-stat-card:hover,
+.curr-card-item:hover,
+.stat-item:hover {
+  border-color: #cbd8e8;
+  box-shadow: 0 10px 24px rgba(34, 52, 82, 0.09);
+  transform: translateY(-2px);
+}
+
+.selected-section,
+.gpa-inputs,
+.gpa-summary,
+.curriculum-controls,
+.curriculum-header,
+.timetable-toolbar,
+.timetable-matrix-container,
+.modal-content {
+  background: #ffffff;
+  border: 1px solid #e2e7ef;
+  box-shadow: 0 8px 24px rgba(34, 52, 82, 0.055);
+}
+
+#selectedCourses li {
+  background: #f4f7fb;
+  border: 1px solid #e3e8f0;
+  box-shadow: none;
+  color: #40506a;
+}
+
+.selection-summary,
+.gpa-table-header,
+.curriculum-table th,
+.modal-header,
+.modal-footer,
+.gpa-scale-info {
+  border-color: #e3e8f0;
+}
+
+.unique-btn,
+button.unique-btn {
+  background: #173b70;
+  color: #ffffff;
+  border: 1px solid #173b70;
+  border-radius: 8px;
+  box-shadow: 0 7px 16px rgba(23, 59, 112, 0.14);
+}
+
+.unique-btn:hover,
+button.unique-btn:hover {
+  background: #214f8a;
+  color: #ffffff;
+  border-color: #214f8a;
+  box-shadow: 0 9px 20px rgba(23, 59, 112, 0.18);
+}
+
+.secondary-btn,
+button.secondary-btn {
+  background: #ffffff !important;
+  color: #40506a !important;
+  border: 1px solid #dfe5ed !important;
+  box-shadow: none !important;
+}
+
+.secondary-btn:hover,
+button.secondary-btn:hover {
+  color: #173b70 !important;
+  border-color: #b9c9dc !important;
+  box-shadow: 0 7px 16px rgba(34, 52, 82, 0.08) !important;
+}
+
+.program-btn.active,
+.view-mode-btn.active {
+  background: #edf3fa;
+  border-color: #b9c9dc;
+  color: #173b70;
+  box-shadow: none;
+}
+
+.curriculum-table th {
+  background: #eef3f8;
+  color: #40506a;
+}
+
+.curriculum-table td {
+  border-color: #edf0f5;
+}
+
+.curriculum-table tbody tr:hover td {
+  background: #f7f9fc;
+}
+
+.curr-code-badge,
+.prereq-tag,
+.cat-badge,
+.curr-card-count,
+.academic-standing-badge {
+  background: #edf3fa;
+  color: #173b70;
+  box-shadow: none;
+  border: 1px solid #dbe5f0;
+}
+
+.text-muted,
+.timetable-subtitle,
+.clock-date,
+.gpa-scale-info,
+.list-item-info,
+.curr-card-title,
+.curr-card-count,
+.stat-lbl {
+  color: #77849a;
+}
+
+.timetable-hint-banner {
+  background: #f7f9fc;
+  color: #40506a;
+  border: 1px solid #e3e8f0;
+  border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+  header.app-header {
+    width: calc(100% - 32px);
+  }
+}
+
+@media (max-width: 600px) {
+  header.app-header {
+    width: calc(100% - 24px);
+    margin-top: 12px;
+    padding: 22px 20px;
+  }
+
+  .header-copy {
+    padding-left: 14px;
+  }
+}
+
+/* Mobile usability pass */
+@media (max-width: 760px) {
+  header.app-header {
+    min-height: 0;
+    margin: 10px auto 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 18px;
+  }
+
+  header.app-header .header-copy {
+    width: 100%;
+  }
+
+  header.app-header .semester-badge {
+    margin-bottom: 12px;
+  }
+
+  header.app-header .live-clock-widget {
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+  }
+
+  .container.glass-panel,
+  .container {
+    width: calc(100% - 20px);
+    margin: 16px auto 32px;
+    padding: 14px;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tab-btn {
+    min-height: 44px;
+    padding: 10px 8px;
+  }
+
+  .tab-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: auto;
+  }
+
+  .available-section {
+    height: auto;
+    max-height: none;
+  }
+
+  .available-section .scroll-container {
+    max-height: 520px;
+  }
+
+  .selected-section {
+    height: auto;
+    min-height: 220px;
+  }
+
+  #selectedCourses {
+    max-height: 360px;
+  }
+
+  .course {
+    gap: 10px;
+  }
+
+  .course > div {
+    min-width: 0;
+  }
+
+  .selection-summary {
+    position: sticky;
+    bottom: -14px;
+    z-index: 4;
+    margin: 12px -14px -14px;
+    padding: 14px;
+    background: #ffffff;
+  }
+
+  .gpa-grid {
+    gap: 16px;
+  }
+
+  .gpa-historical-data {
+    flex-direction: column;
+  }
+
+  .gpa-table-header {
+    display: none;
+  }
+
+  .gpa-row-entry {
+    grid-template-columns: minmax(0, 1fr) 64px 82px 34px;
+    gap: 6px;
+    padding: 10px 4px;
+  }
+
+  .gpa-row-entry input,
+  .gpa-row-entry select {
+    min-width: 0;
+  }
+
+  .gpa-summary {
+    position: static;
+  }
+
+  .timetable-header-bar,
+  .timetable-toolbar {
+    align-items: flex-start;
+  }
+
+  .timetable-legend,
+  .timetable-stats,
+  .timetable-actions {
+    width: 100%;
+  }
+
+  .timetable-matrix-container {
+    border-radius: 12px;
+  }
+
+  .curriculum-header {
+    align-items: flex-start;
+  }
+
+  .program-selector {
+    width: 100%;
+  }
+
+  .program-btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .program-btn .prog-title {
+    display: none;
+  }
+
+  .curriculum-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .curr-stat-card {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .curr-stat-card .stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .curr-stat-card .stat-num {
+    font-size: 1.35rem;
+  }
+
+  .search-filter-row,
+  .filter-select-group,
+  .view-and-actions-row {
+    width: 100%;
+  }
+
+  .curr-search-box,
+  .filter-select-group {
+    min-width: 0;
+  }
+
+  .filter-select-group {
+    flex-direction: column;
+  }
+
+  .view-mode-tabs,
+  .action-btn-group {
+    width: 100%;
+  }
+
+  .view-mode-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .view-mode-btn {
+    min-width: 0;
+    padding: 9px 6px;
+    font-size: 0.72rem;
+  }
+
+  .action-btn-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .action-btn-group .unique-btn {
+    width: 100%;
+  }
+
+  .curr-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    width: calc(100% - 24px);
+    max-height: calc(100vh - 24px);
+  }
+}
+
+@media (max-width: 420px) {
+  header.app-header .neon-text {
+    font-size: 1.65rem;
+  }
+
+  .tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .course {
+    align-items: flex-start;
+  }
+
+  .gpa-row-entry {
+    grid-template-columns: minmax(0, 1fr) 54px 70px 30px;
+  }
+
+  .gpa-row-entry input,
+  .gpa-row-entry select {
+    font-size: 0.72rem;
+  }
+
+  .gpa-btn-row,
+  .timetable-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .gpa-btn-row .unique-btn,
+  .timetable-actions .unique-btn {
+    width: 100%;
+  }
+
+  .curriculum-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .view-mode-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .action-btn-group {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* GPA calculator — refined academic workspace */
+.gpa-container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 2px 0 8px;
+}
+
+.gpa-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e3e8f0;
+}
+
+.gpa-header h2 {
+  margin: 0 0 5px;
+  letter-spacing: -0.8px;
+}
+
+.gpa-header .text-muted {
+  max-width: 520px;
+  text-align: right;
+  line-height: 1.55;
+}
+
+.gpa-grid {
+  grid-template-columns: minmax(0, 1.75fr) minmax(300px, 0.75fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.gpa-inputs {
+  padding: 22px;
+  border-radius: 14px;
+}
+
+.gpa-historical-data {
+  margin-bottom: 20px;
+  padding: 14px;
+  background: #f7f9fc;
+  border: 1px solid #e5eaf2;
+  border-radius: 10px;
+  box-shadow: none;
+  gap: 12px;
+}
+
+.gpa-historical-data label {
+  color: #40506a;
+  letter-spacing: 0.8px;
+}
+
+.gpa-historical-data input {
+  height: 43px;
+  background: #ffffff;
+  border: 1px solid #dde4ee;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.gpa-table-header {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 82px 126px 36px;
+  gap: 10px;
+  margin: 0 4px;
+  padding: 10px 8px;
+  background: #eef3f8;
+  border: 1px solid #e1e7ef;
+  border-radius: 8px 8px 0 0;
+  color: #40506a;
+}
+
+.gpa-rows {
+  margin: 0 4px;
+  border-left: 1px solid #e6ebf2;
+  border-right: 1px solid #e6ebf2;
+}
+
+.gpa-row-entry {
+  grid-template-columns: minmax(180px, 1fr) 82px 126px 36px;
+  gap: 10px;
+  min-height: 64px;
+  margin: 0;
+  padding: 10px 8px;
+  border-bottom: 1px solid #e6ebf2;
+  border-radius: 0;
+}
+
+.gpa-row-entry:hover {
+  background: #f8fafc;
+}
+
+.gpa-row-entry input,
+.gpa-row-entry select {
+  height: 42px;
+  background: #ffffff;
+  border: 1px solid #dde4ee;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.remove-row-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #e1e6ed;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.gpa-row-sub {
+  grid-column: 1 / -1;
+  min-height: 28px;
+  margin-top: 2px;
+  padding: 3px 0;
+  border-top: 1px dashed #edf0f5;
+}
+
+.gpa-btn-row {
+  margin: 16px 4px 0;
+  padding-top: 14px;
+  border-top: 1px solid #edf0f5;
+}
+
+.gpa-summary {
+  top: 18px;
+  padding: 20px;
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+}
+
+.gpa-summary h3 {
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e6ebf2;
+  font-size: 1.05rem;
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.stat-item {
+  min-height: 104px;
+  justify-content: center;
+  padding: 14px 10px;
+  border: 1px solid #e5eaf2;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.stat-item:last-child {
+  grid-column: 1 / -1;
+  min-height: 128px;
+  border-color: #d7e2ef;
+  background: #f3f7fb;
+}
+
+.stat-label {
+  color: #77849a;
+}
+
+.stat-value {
+  color: #173b70;
+  font-size: 1.75rem;
+}
+
+.gpa-glow {
+  margin: 2px 0;
+  color: #173b70;
+  -webkit-text-fill-color: #173b70;
+  background: none;
+  font-size: 3rem;
+  filter: none;
+}
+
+.academic-standing-badge {
+  border: 1px solid #dbe5f0;
+  background: #edf3fa;
+  color: #173b70;
+  border-radius: 6px;
+}
+
+.gpa-scale-info {
+  padding: 12px 6px 0;
+  color: #77849a;
+  border-top: 1px solid #e6ebf2;
+  text-align: left;
+  line-height: 1.45;
+  font-style: normal;
+}
+
+#generateGpaReportBtn {
+  margin-top: 16px;
+  height: 44px;
+}
+
+@media (max-width: 900px) {
+  .gpa-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gpa-header .text-muted {
+    text-align: left;
+  }
+
+  .gpa-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gpa-summary {
+    position: static;
+  }
+}
+
+@media (max-width: 600px) {
+  .gpa-header {
+    padding: 12px 2px;
+  }
+
+  .gpa-inputs,
+  .gpa-summary {
+    padding: 14px;
+  }
+
+  .gpa-historical-data {
+    flex-direction: column;
+  }
+
+  .gpa-table-header {
+    display: none;
+  }
+
+  .gpa-rows {
+    margin: 0;
+  }
+
+  .gpa-row-entry {
+    grid-template-columns: minmax(0, 1fr) 58px 78px 32px;
+    gap: 5px;
+    padding: 8px 4px;
+  }
+
+  .gpa-row-entry input,
+  .gpa-row-entry select {
+    width: 100%;
+    height: 40px;
+    min-width: 0;
+    padding: 8px 6px;
+    font-size: 0.78rem;
+  }
+
+  .remove-row-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .gpa-btn-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .gpa-btn-row .unique-btn {
+    width: 100%;
+  }
+
+  .summary-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 380px) {
+  .gpa-row-entry {
+    grid-template-columns: minmax(0, 1fr) 50px 66px 28px;
+  }
+
+  .gpa-row-entry input,
+  .gpa-row-entry select {
+    font-size: 0.7rem;
   }
 }
