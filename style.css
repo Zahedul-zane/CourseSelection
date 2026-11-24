@@ -3893,6 +3893,10 @@ h3 {
   box-shadow: 0 5px 16px rgba(34, 52, 82, 0.055);
 }
 
+.course .course-time-label {
+  color: #77849a;
+}
+
 .course::before {
   width: 3px;
   background: #2f67b1;

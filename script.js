@@ -3457,7 +3457,7 @@ function renderCourses(searchTerm = "") {
           td.style.alignItems = "center";
           td.style.gap = "6px";
           td.style.margin = "2px 0";
-          td.innerHTML = `<span>• ${tMatch[1]}</span> ${typeBadge}`;
+          td.innerHTML = `<span class="course-time-label">• ${tMatch[1]}</span> ${typeBadge}`;
           timesDiv.appendChild(td);
         }
       });
